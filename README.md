@@ -20,21 +20,28 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 
 ## BUITA
 
+- _Full name of the course: IT architecture and user driven software design_
 - [BUITA on Moodle](https://moodle.ruc.dk/course/view.php?id=11116)
 - [BUITA Intro](/BUITA/2018-08-31/Intro_BUITA_and_PP.pdf)
+- Book that is going to be used: _Rozanski, N. and E. Woods.: Software Systems Architecture – Working with Stakeholders Using Viewpoints and Perspectives, 2nd edition_
 
 ### BUITA Lectures
 
 - [August 31](/BUITA/2018-08-31) (Intro lecture)
   - [Intro_BUITA_and_PP.pdf](/BUITA/2018-08-31/Intro_BUITA_and_PP.pdf)
+- [September 4](/BUITA/2018-09-04)
+  - [BUITA1.pdf](/BUITA/2018-09-04/BUITA1.pdf)
 
 ### BUITA Project Portfolio
 
+- [Moodle page](https://moodle.ruc.dk/course/view.php?id=10874)
 - _TBD_
 
 ---
 
 ## Programming Interactive Experiences
+
+- [Moodle page](https://moodle.ruc.dk/course/view.php?id=11283)
 
 ### Programming Interactive Experiences Lectures
 
