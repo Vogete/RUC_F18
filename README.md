@@ -31,6 +31,9 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
   - [Intro_BUITA_and_PP.pdf](/BUITA/2018-08-31/Intro_BUITA_and_PP.pdf)
 - [September 4](/BUITA/2018-09-04)
   - [BUITA1.pdf](/BUITA/2018-09-04/BUITA1.pdf)
+- [September 6](/BUITA/2018-09-06)
+  - [BUITA2.pdf](/BUITA/2018-09-06/BUITA2.pdf)
+  - [Example case](/BUITA/2018-09-06/BUITA_CASE_CUTNMOVE.pdf)
 
 ### BUITA Project Portfolio
 
@@ -42,6 +45,7 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 ## Programming Interactive Experiences
 
 - [Moodle page](https://moodle.ruc.dk/course/view.php?id=11283)
+- [Learning platform](https://learn.hobye.dk/courses/programming-interactive-experiences)
 
 ### Programming Interactive Experiences Lectures
 
