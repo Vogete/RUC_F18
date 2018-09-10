@@ -42,11 +42,12 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 
 ---
 
-## Programming Interactive Experiences
+## Programming Interactive Experiences (PIE)
 
 - [Moodle page](https://moodle.ruc.dk/course/view.php?id=11283)
-- [Learning platform](https://learn.hobye.dk/courses/programming-interactive-experiences)
+- [Learning platform](https://learn.hobye.dk/courses/programming-interactive-experiences): Use this instead of Moodle
 
 ### Programming Interactive Experiences Lectures
 
-- _TBD_
+- [September 10](/PIE/2018-09-10) (intro lecture)
+  - [Intro Slides](/PIE/2018-09-10/00_PIE_Intro.pdf) ([Google slides](https://docs.google.com/presentation/d/1rE0DWs1Tf5f3D5RHTcf1MnFFJMg2xV39V9Y1pIxPGow/present?slide=id.p3))
