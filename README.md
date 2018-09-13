@@ -34,6 +34,9 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 - [September 6](/BUITA/2018-09-06)
   - [BUITA2.pdf](/BUITA/2018-09-06/BUITA2.pdf)
   - [Example case](/BUITA/2018-09-06/BUITA_CASE_CUTNMOVE.pdf)
+- [September 11](/BUITA/2018-09-11)
+  - [BUITA03.pdf](/BUITA/2018-09-11/BUITA03.pdf)
+  - [CUTNMOVE_STAKEHOLDERS.pdf](/BUITA/2018-09-11/CUTNMOVE_STAKEHOLDERS.pdf)
 
 ### BUITA Project Portfolio
 
