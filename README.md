@@ -43,7 +43,7 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 ### BUITA Project Portfolio
 
 - [Moodle page](https://moodle.ruc.dk/course/view.php?id=10874)
-- _TBD_
+- Find a case company, and make an archictecural description for them.
 
 ---
 
@@ -56,3 +56,7 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 
 - [September 10](/PIE/2018-09-10) (intro lecture)
   - [Intro Slides](/PIE/2018-09-10/00_PIE_Intro.pdf) ([Google slides](https://docs.google.com/presentation/d/1rE0DWs1Tf5f3D5RHTcf1MnFFJMg2xV39V9Y1pIxPGow/present?slide=id.p3))
+  - [01_Pie_Framing_Exploration_Sketching.pdf](/PIE/2018-09-10/01_Pie_Framing_Exploration_Sketching.pdf) ([Google slides](https://docs.google.com/presentation/d/1J-BxN3KldC9eqpUDXB68GVlPlzEisDro_Ntye1Axgc4/edit))
+- [September 17](/PIE/2018-09-17)
+  - [02_Pie_Interactive.pdf](/PIE/2018-09-17/02_Pie_Interactive.pdf) ([Google slides](https://docs.google.com/presentation/d/1xIaW63d-V5uJZofddown3b0Xc7QWWdLiZBDftARd-8I/edit))
+  - [Basic Arduino Programming](/PIE/2018-09-17/BasicArduinoProgramming.pdf) ([Google slides](https://docs.google.com/presentation/d/1DoDAMcJx9vt20Ovte3yxCQyGeOuZyOQ1eFOB429weA4/present?slide=id.g3d14026bac_0_0))
