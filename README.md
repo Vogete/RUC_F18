@@ -24,6 +24,8 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 - [BUITA on Moodle](https://moodle.ruc.dk/course/view.php?id=11116)
 - [BUITA Intro](/BUITA/2018-08-31/Intro_BUITA_and_PP.pdf)
 - Book that is going to be used: _Rozanski, N. and E. Woods.: Software Systems Architecture – Working with Stakeholders Using Viewpoints and Perspectives, 2nd edition_
+  - 1st edition of the book can be found [here](/BUITA/Addison_Wesley-Software_Systems_Architecture_Apr_2005.pdf), however the recommended version is the 2nd edition.
+  - 2nd edition can be bought as an ebook from the [Google Play Books store](https://play.google.com/store/books/details?id=nXRF77-gxRkC) or as a physical/ebook at [Amazon](https://www.amazon.com/Software-Systems-Architecture-Stakeholders-Perspectives/dp/0321112296)
 
 ### BUITA Lectures
 
@@ -39,11 +41,34 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
   - [CUTNMOVE_STAKEHOLDERS.pdf](/BUITA/2018-09-11/CUTNMOVE_STAKEHOLDERS.pdf)
 - [September 13](/BUITA/2018-09-13)
   - [BUITA4-ITS1.pdf](/BUITA/2018-09-13/BUITA4-ITS1.pdf)
+- [September 18](/BUITA/2018-09-18)
+  - [BUITA05-SDD1.pdf](/BUITA/2018-09-18/BUITA05-SDD1.pdf)
+- September 20
+  - Project portfolio meeting, evaluation and feedback
 
 ### BUITA Project Portfolio
 
 - [Moodle page](https://moodle.ruc.dk/course/view.php?id=10874)
-- Find a case company, and make an archictecural description for them.
+- Goal: Find a case company, and make an archictecural description for them. More info [here](Intro_to_Portfolio_Project+Case_template_letter.docx).
+- [Groups and case companies](https://docs.google.com/document/d/1QRHkOrazzjCUS64DzmyuRQ6xVO6nbJpyFiTbcMqNfig/edit)
+
+### Assignments
+
+- Assignment 1
+  - Deadline: **2018. September 20.**
+  - [ProjectCharterPMI.docx](/BUITA/2018-09-18/ProjectCharterPMI.docx)
+  - Assignment description:
+    - For this seminar the following AD document elements are expected:
+      - project charter v. 1.0
+      - stakeholder analysis v. 1.0 (depending on the progress of your company contact)
+    - Prepare a single document to upload Thursday morning. As document-id use your group name. List group members by name on the first page and remember to use page numbers.
+    - To develop the Project Charter you may find inspiration in the ProjectCharterPMI document (in the Resources/Templates folder); as we discussed in the BUITA lecture only a subset of the headings may be applicable at this point in time (also this template is from a general project management agency):
+      - project description
+      - project scope/deliverables
+      - (risks)
+      - organisation, roles and responsibilities
+      - overall plan
+    - The stakeholder analysis should be added to the Project Charter document. For inspiration take a look at the StakeholderMap document in the Resources/Examples folder. Or you may find at this point in time that it is more constructive to list the top three concerns of each stakeholder.
 
 ---
 
