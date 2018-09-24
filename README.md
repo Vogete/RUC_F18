@@ -85,3 +85,5 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 - [September 17](/PIE/2018-09-17)
   - [02_Pie_Interactive.pdf](/PIE/2018-09-17/02_Pie_Interactive.pdf) ([Google slides](https://docs.google.com/presentation/d/1xIaW63d-V5uJZofddown3b0Xc7QWWdLiZBDftARd-8I/edit))
   - [Basic Arduino Programming](/PIE/2018-09-17/BasicArduinoProgramming.pdf) ([Google slides](https://docs.google.com/presentation/d/1DoDAMcJx9vt20Ovte3yxCQyGeOuZyOQ1eFOB429weA4/present?slide=id.g3d14026bac_0_0))
+- [September 24](/PIE/2018-09-24)
+  - Personal work, project description and planning
