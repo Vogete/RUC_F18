@@ -80,14 +80,17 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
 
 - [Moodle page](https://moodle.ruc.dk/course/view.php?id=11283)
 - [Learning platform](https://learn.hobye.dk/courses/programming-interactive-experiences): Use this instead of Moodle
+- [Project sketches](https://drive.google.com/drive/folders/1R_T8GkNuVzdix63v0XO8bcUvWy5hcGUy)
 
 ### Programming Interactive Experiences Lectures
 
 - [September 10](/PIE/2018-09-10) (intro lecture)
-  - [Intro Slides](/PIE/2018-09-10/00_PIE_Intro.pdf) ([Google slides](https://docs.google.com/presentation/d/1rE0DWs1Tf5f3D5RHTcf1MnFFJMg2xV39V9Y1pIxPGow/present?slide=id.p3))
-  - [01_Pie_Framing_Exploration_Sketching.pdf](/PIE/2018-09-10/01_Pie_Framing_Exploration_Sketching.pdf) ([Google slides](https://docs.google.com/presentation/d/1J-BxN3KldC9eqpUDXB68GVlPlzEisDro_Ntye1Axgc4/edit))
+  - [Intro Slides](/PIE/2018-09-10/00_PIE_Intro.pdf) ([Google slides](https://docs.google.com/presentation/d/1rE0DWs1Tf5f3D5RHTcf1MnFFJMg2xV39V9Y1pIxPGow/))
+  - [01_Pie_Framing_Exploration_Sketching.pdf](/PIE/2018-09-10/01_Pie_Framing_Exploration_Sketching.pdf) ([Google slides](https://docs.google.com/presentation/d/1J-BxN3KldC9eqpUDXB68GVlPlzEisDro_Ntye1Axgc4/))
 - [September 17](/PIE/2018-09-17)
-  - [02_Pie_Interactive.pdf](/PIE/2018-09-17/02_Pie_Interactive.pdf) ([Google slides](https://docs.google.com/presentation/d/1xIaW63d-V5uJZofddown3b0Xc7QWWdLiZBDftARd-8I/edit))
-  - [Basic Arduino Programming](/PIE/2018-09-17/BasicArduinoProgramming.pdf) ([Google slides](https://docs.google.com/presentation/d/1DoDAMcJx9vt20Ovte3yxCQyGeOuZyOQ1eFOB429weA4/present?slide=id.g3d14026bac_0_0))
+  - [02_Pie_Interactive.pdf](/PIE/2018-09-17/02_Pie_Interactive.pdf) ([Google slides](https://docs.google.com/presentation/d/1xIaW63d-V5uJZofddown3b0Xc7QWWdLiZBDftARd-8I/))
+  - [Basic Arduino Programming](/PIE/2018-09-17/BasicArduinoProgramming.pdf) ([Google slides](https://docs.google.com/presentation/d/1DoDAMcJx9vt20Ovte3yxCQyGeOuZyOQ1eFOB429weA4/))
 - [September 24](/PIE/2018-09-24)
   - Personal work, project description and planning
+- [October 01](/PIE/2018-10-01)
+  - [04_PIE_TCP_MQTT.pdf](/PIE/2018-10-01/04_PIE_TCP_MQTT.pdf) ([Google slides](https://docs.google.com/presentation/d/11im-mGr9nySAjyrR-o3xOgyPp6VdjcxiymfVBsdH2Ps/))
