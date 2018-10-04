@@ -49,6 +49,9 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
   - [Evaluation of IT](/BUITA/2018-09-25/EIT1.pdf)
 - [September 27](/BUITA/2018-09-27)
   - [BUITA_7-SDD2.pdf](/BUITA/2018-09-27/BUITA_7-SDD2.pdf)
+- [October 4](/BUITA/2018-10-04)
+  - [IT security 2](/BUITA/2018-10-04/buita-its-2.pdf)
+  - [PfleegerEd5-chapt1.pdf](/BUITA/2018-10-04/PfleegerEd5-chapt1.pdf)
 
 ### BUITA Project Portfolio
 
@@ -92,5 +95,5 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
   - [Basic Arduino Programming](/PIE/2018-09-17/BasicArduinoProgramming.pdf) ([Google slides](https://docs.google.com/presentation/d/1DoDAMcJx9vt20Ovte3yxCQyGeOuZyOQ1eFOB429weA4/))
 - [September 24](/PIE/2018-09-24)
   - Personal work, project description and planning
-- [October 01](/PIE/2018-10-01)
+- [October 1](/PIE/2018-10-01)
   - [04_PIE_TCP_MQTT.pdf](/PIE/2018-10-01/04_PIE_TCP_MQTT.pdf) ([Google slides](https://docs.google.com/presentation/d/11im-mGr9nySAjyrR-o3xOgyPp6VdjcxiymfVBsdH2Ps/))
