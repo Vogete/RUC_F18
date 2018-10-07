@@ -8,10 +8,21 @@
 //************************************************************
 #include "painlessMesh.h"
 
+// REST Server
+#include <stdio.h>
+#include <ESP8266WebServer.h>
+#include <ArduinoJson.h>
+
+#define HTTP_REST_PORT 80
+#define WIFI_RETRY_DELAY 500
+#define MAX_WIFI_INIT_RETRY 50
+
+ESP8266WebServer http_rest_server(HTTP_REST_PORT);
+
 // -------------LED ------------
 //stop LED flickering when wifi is on: https://github.com/FastLED/FastLED/issues/306
 // #define FASTLED_ALLOW_INTERRUPTS 0
-#define FASTLED_INTERRUPT_RETRY_COUNT 0  //?????
+#define FASTLED_INTERRUPT_RETRY_COUNT 0 //?????
 
 #include <FastLED.h>
 #define NUM_LEDS 8
@@ -106,12 +117,18 @@ void setup()
     taskSendMessage.enable();
 
     myNodeID = mesh.getNodeId();
+
+    // rest api
+    config_rest_server_routing();
+    http_rest_server.begin();
+    Serial.println("HTTP REST Server Started");
 }
 
 void loop()
 {
     userScheduler.execute(); // it will run mesh scheduler as well
     mesh.update();
+    http_rest_server.handleClient();
 
     if (millis() - timer > 1000 / frameRate)
     {
@@ -136,7 +153,7 @@ void ledRainbow()
 void ledNodeCount()
 {
     int noNodes = meshNodes.size() + 1;
-    for (int i = 0; i <  NUM_LEDS; i++)
+    for (int i = 0; i < NUM_LEDS; i++)
     {
         if (i <= noNodes - 1)
         {
@@ -148,4 +165,22 @@ void ledNodeCount()
         }
         yield();
     }
+}
+
+// REST Server stuff
+
+void getNodesInMesh()
+{
+    http_rest_server.send(200, "application/json", mesh.subConnectionJson().c_str());
+}
+
+void config_rest_server_routing()
+{
+    http_rest_server.on("/", HTTP_GET, []() {
+        http_rest_server.send(200, "text/html",
+                              "Welcome to the ESP8266 REST Web Server");
+    });
+    http_rest_server.on("/mesh", HTTP_GET, getNodesInMesh);
+    // http_rest_server.on("/leds", HTTP_POST, post_put_leds);
+    // http_rest_server.on("/leds", HTTP_PUT, post_put_leds);
 }
