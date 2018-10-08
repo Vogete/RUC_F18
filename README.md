@@ -97,3 +97,5 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
   - Personal work, project description and planning
 - [October 1](/PIE/2018-10-01)
   - [04_PIE_TCP_MQTT.pdf](/PIE/2018-10-01/04_PIE_TCP_MQTT.pdf) ([Google slides](https://docs.google.com/presentation/d/11im-mGr9nySAjyrR-o3xOgyPp6VdjcxiymfVBsdH2Ps/))
+- [October 8](/PIE/2018-10-08)
+  - [05_Pie_Research_through_design.pdf](/PIE/2018-10-08/05_Pie_Research_through_design.pdf) ([Google slides](https://docs.google.com/presentation/d/1XQT8aIxYVjth0e9ybE2EsKpEBfvxJJJUdxT5Kcgz4N8/))
