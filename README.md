@@ -49,9 +49,15 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
   - [Evaluation of IT](/BUITA/2018-09-25/EIT1.pdf)
 - [September 27](/BUITA/2018-09-27)
   - [BUITA_7-SDD2.pdf](/BUITA/2018-09-27/BUITA_7-SDD2.pdf)
+- October 1
+  - Project portfolio meeting, evaluation and feedback
 - [October 4](/BUITA/2018-10-04)
   - [IT security 2](/BUITA/2018-10-04/buita-its-2.pdf)
   - [PfleegerEd5-chapt1.pdf](/BUITA/2018-10-04/PfleegerEd5-chapt1.pdf)
+- October 9
+  - Project portfolio meeting
+- [October 11](/BUITA/2018-10-11)
+  - [IT security 3](/BUITA/2018-10-11/buita-its-3-moodle.pdf)
 
 ### BUITA Project Portfolio
 
