@@ -22,11 +22,12 @@ ESP8266WebServer http_rest_server(HTTP_REST_PORT);
 // -------------LED ------------
 //stop LED flickering when wifi is on: https://github.com/FastLED/FastLED/issues/306
 // #define FASTLED_ALLOW_INTERRUPTS 0
-#define FASTLED_INTERRUPT_RETRY_COUNT 0 //?????
+#define FASTLED_INTERRUPT_RETRY_COUNT 0
 
 #include <FastLED.h>
 #define NUM_LEDS 8
 #define DATA_PIN D2
+#define BUTTON_PIN D8
 byte scale = 150; // 0-255
 
 // Define the array of leds
@@ -34,8 +35,16 @@ CRGB leds[NUM_LEDS];
 
 unsigned long timer = 0;
 unsigned int frameRate = 40;
+byte ledPattern = 1;
 
 // -----------------------------
+
+// ---------------- Button press ----------------
+
+int buttonState = 0;
+int lastButtonState = 0;
+
+// ----------------------------------------------
 
 #define MESH_PREFIX "zfrWemosMesh"
 #define MESH_PASSWORD "potatochips3214"
@@ -51,20 +60,32 @@ uint32_t myNodeID;
 // User stub
 void sendMessage(); // Prototype so PlatformIO doesn't complain
 
-Task taskSendMessage(TASK_SECOND * 1, TASK_FOREVER, &sendMessage);
+// Task taskSendMessage(TASK_SECOND * 1, TASK_FOREVER, &sendMessage);
 
-void sendMessage()
+void sendMessage(String message, uint32_t destination = 0)
 {
-    String msg = "Hello from node ";
-    msg += mesh.getNodeId();
-    mesh.sendBroadcast(msg);
-    taskSendMessage.setInterval(random(TASK_SECOND * 1, TASK_SECOND * 5));
+    // String msg = "Hello from node ";
+    // msg += mesh.getNodeId();
+    // taskSendMessage.setInterval(random(TASK_SECOND * 1, TASK_SECOND * 5));
+    if (destination == 0)
+    {
+        mesh.sendBroadcast(message);
+    }
+    else
+    {
+        mesh.sendSingle(destination, message);
+    }
 }
+
 
 // Needed for painless library
 void receivedCallback(uint32_t from, String &msg)
 {
     Serial.printf("startHere: Received from %u msg=%s\n", from, msg.c_str());
+    if (msg == "switch light mode")
+    {
+        changeLEDPattern();
+    }
 }
 
 void newConnectionCallback(uint32_t nodeId)
@@ -99,6 +120,8 @@ void nodeTimeAdjustedCallback(int32_t offset)
 
 void setup()
 {
+    pinMode(BUTTON_PIN, INPUT);
+
     setupLed();
     delay(1000);
 
@@ -113,8 +136,8 @@ void setup()
     mesh.onChangedConnections(&changedConnectionCallback);
     mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
 
-    userScheduler.addTask(taskSendMessage);
-    taskSendMessage.enable();
+    // userScheduler.addTask(taskSendMessage);
+    // taskSendMessage.enable();
 
     myNodeID = mesh.getNodeId();
 
@@ -130,12 +153,58 @@ void loop()
     mesh.update();
     http_rest_server.handleClient();
 
+    handdleButtonPress();
+
     if (millis() - timer > 1000 / frameRate)
     {
         timer = millis();
-        ledNodeCount();
+        showLEDPattern();
         loopLed();
     }
+}
+
+void handdleButtonPress()
+{
+    buttonState = digitalRead(BUTTON_PIN);
+    if (buttonState != lastButtonState)
+    {
+        if (buttonState == HIGH)
+        {
+            changeLEDPattern();
+            sendMessage("switch light mode");
+        }
+        lastButtonState = buttonState;
+        delay(50);
+    }
+}
+
+void showLEDPattern()
+{
+    switch (ledPattern)
+    {
+    case 1:
+        ledNodeCount();
+        break;
+    case 2:
+        ledRainbow();
+        break;
+    default:
+        break;
+    }
+}
+
+void changeLEDPattern()
+{
+    if (ledPattern == 1)
+    {
+        ledPattern = 2;
+    }
+    else
+    {
+        ledPattern = 1;
+    }
+
+    showLEDPattern();
 }
 
 void ledRainbow()
@@ -181,6 +250,7 @@ void config_rest_server_routing()
                               "Welcome to the ESP8266 REST Web Server");
     });
     http_rest_server.on("/mesh", HTTP_GET, getNodesInMesh);
+    http_rest_server.on("/changeLEDPattern", HTTP_GET, changeLEDPattern);
     // http_rest_server.on("/leds", HTTP_POST, post_put_leds);
     // http_rest_server.on("/leds", HTTP_PUT, post_put_leds);
 }
