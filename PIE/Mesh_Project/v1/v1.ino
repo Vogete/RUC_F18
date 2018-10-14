@@ -1,11 +1,3 @@
-//************************************************************
-// this is a simple example that uses the painlessMesh library
-//
-// 1. sends a silly message to every node on the mesh at a random time between 1 and 5 seconds
-// 2. prints anything it receives to Serial.print
-//
-//
-//************************************************************
 #include "painlessMesh.h"
 
 // REST Server
@@ -28,6 +20,7 @@ ESP8266WebServer http_rest_server(HTTP_REST_PORT);
 #define NUM_LEDS 8
 #define DATA_PIN D2
 #define BUTTON_PIN D8
+
 byte scale = 150; // 0-255
 
 // Define the array of leds
@@ -39,16 +32,13 @@ byte ledPattern = 1;
 
 // -----------------------------
 
-// ---------------- Button press ----------------
-
-int buttonState = 0;
-int lastButtonState = 0;
-
-// ----------------------------------------------
-
 #define MESH_PREFIX "zfrWemosMesh"
 #define MESH_PASSWORD "potatochips3214"
 #define MESH_PORT 5555
+#define MESH_CHANNEL 1
+#define HOSTNAME "WEMOS-MESH"
+#define STATION_SSID "Kukucs Guest"
+#define STATION_PASSWORD "kukucs357"
 
 Scheduler userScheduler; // to control your personal task
 painlessMesh mesh;
@@ -58,7 +48,7 @@ std::list<uint32_t> meshNodes;
 uint32_t myNodeID;
 
 // User stub
-void sendMessage(); // Prototype so PlatformIO doesn't complain
+// void sendMessage(); // Prototype so PlatformIO doesn't complain
 
 // Task taskSendMessage(TASK_SECOND * 1, TASK_FOREVER, &sendMessage);
 
@@ -120,26 +110,36 @@ void nodeTimeAdjustedCallback(int32_t offset)
 
 void setup()
 {
-    pinMode(BUTTON_PIN, INPUT);
+    setupButtons();
 
     setupLed();
     delay(1000);
 
     Serial.begin(115200);
 
+
     //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
     mesh.setDebugMsgTypes(ERROR | STARTUP); // set before init() so that you can see startup messages
 
-    mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT);
+    mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT, WIFI_AP_STA, MESH_CHANNEL);
     mesh.onReceive(&receivedCallback);
     mesh.onNewConnection(&newConnectionCallback);
     mesh.onChangedConnections(&changedConnectionCallback);
     mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
 
+    myNodeID = mesh.getNodeId();
+    Serial.printf("MyNodeID: %u\n", myNodeID);
+
+    if (myNodeID == 3943449884)
+    {
+        mesh.stationManual(STATION_SSID, STATION_PASSWORD);
+        mesh.setHostname(HOSTNAME);
+        Serial.printf("Connected to WiFi network %s\n", STATION_SSID);
+    }
+
     // userScheduler.addTask(taskSendMessage);
     // taskSendMessage.enable();
 
-    myNodeID = mesh.getNodeId();
 
     // rest api
     config_rest_server_routing();
@@ -163,79 +163,6 @@ void loop()
     }
 }
 
-void handdleButtonPress()
-{
-    buttonState = digitalRead(BUTTON_PIN);
-    if (buttonState != lastButtonState)
-    {
-        if (buttonState == HIGH)
-        {
-            changeLEDPattern();
-            sendMessage("switch light mode");
-        }
-        lastButtonState = buttonState;
-        delay(50);
-    }
-}
-
-void showLEDPattern()
-{
-    switch (ledPattern)
-    {
-    case 1:
-        ledNodeCount();
-        break;
-    case 2:
-        ledRainbow();
-        break;
-    default:
-        break;
-    }
-}
-
-void changeLEDPattern()
-{
-    if (ledPattern == 1)
-    {
-        ledPattern = 2;
-    }
-    else
-    {
-        ledPattern = 1;
-    }
-
-    showLEDPattern();
-}
-
-void ledRainbow()
-{
-
-    for (int i = 0; i < NUM_LEDS; i++)
-    {
-        uint8_t hue = round((255 / NUM_LEDS) * i);
-        leds[i] = CHSV(hue, 255, 255);
-        Serial.println(hue);
-        yield();
-    }
-}
-
-void ledNodeCount()
-{
-    int noNodes = meshNodes.size() + 1;
-    for (int i = 0; i < NUM_LEDS; i++)
-    {
-        if (i <= noNodes - 1)
-        {
-            leds[i] = CRGB(0, 179, 60);
-        }
-        else
-        {
-            leds[i].fadeToBlackBy(100);
-        }
-        yield();
-    }
-}
-
 // REST Server stuff
 
 void getNodesInMesh()
@@ -250,7 +177,14 @@ void config_rest_server_routing()
                               "Welcome to the ESP8266 REST Web Server");
     });
     http_rest_server.on("/mesh", HTTP_GET, getNodesInMesh);
-    http_rest_server.on("/changeLEDPattern", HTTP_GET, changeLEDPattern);
+    http_rest_server.on("/changeLEDPattern", HTTP_GET, apiChangeLedPattern);
     // http_rest_server.on("/leds", HTTP_POST, post_put_leds);
     // http_rest_server.on("/leds", HTTP_PUT, post_put_leds);
+}
+
+void apiChangeLedPattern()
+{
+    changeLEDPattern();
+    sendMessage("switch light mode");
+    http_rest_server.send(200, "text/html", "Changed LED Patter! :)");
 }
