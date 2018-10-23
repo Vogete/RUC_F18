@@ -58,6 +58,8 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
   - Project portfolio meeting
 - [October 11](/BUITA/2018-10-11)
   - [IT security 3](/BUITA/2018-10-11/buita-its-3-moodle.pdf)
+- [October 23](/BUITA/2018-10-23/)
+  - [BUITA11.pdf](/BUITA/2018-10-23/BUITA11.pdf)
 
 ### BUITA Project Portfolio
 

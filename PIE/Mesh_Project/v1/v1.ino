@@ -132,10 +132,16 @@ void setup()
 
     if (myNodeID == 3943449884)
     {
+        mesh.setRoot(); //maybe helps with stabilization?
         mesh.stationManual(STATION_SSID, STATION_PASSWORD);
         mesh.setHostname(HOSTNAME);
         Serial.printf("Connected to WiFi network %s\n", STATION_SSID);
     }
+    else
+    {
+        mesh.setContainsRoot(); //maybe helps with stabilization?
+    }
+
 
     // userScheduler.addTask(taskSendMessage);
     // taskSendMessage.enable();
