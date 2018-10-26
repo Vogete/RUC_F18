@@ -1,5 +1,5 @@
-#ifndef _LEDCONTROL_POTATO_H_
-#define _LEDCONTROL_POTATO_H_
+#ifndef _LEDCONTROL_H_
+#define _LEDCONTROL_H_
 
 
 
@@ -12,6 +12,7 @@ public:
     void showLEDPattern();
     void changeLEDPattern();
     void ledRainbow();
+    void ledRed();
     void ledNodeCount(int noNodes);
 };
 

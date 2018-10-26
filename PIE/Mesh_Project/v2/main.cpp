@@ -1,7 +1,6 @@
 #include "common.h"
 
 #include <list>
-#include <painlessMesh.h>
 
 // REST Server
 #include <stdio.h>
@@ -10,38 +9,21 @@
 
 #include "buttoncontrol.h"
 #include "ledcontrol.h"
+#include "meshcontrol.h"
 
-// -------------LED ------------
-//stop LED flickering when wifi is on: https://github.com/FastLED/FastLED/issues/306
-// #define FASTLED_ALLOW_INTERRUPTS 0
-#define FASTLED_INTERRUPT_RETRY_COUNT 0
 
-painlessMesh mesh;
-Scheduler userScheduler; // to control your personal task
+// Scheduler userScheduler; // to control your personal task
 ESP8266WebServer http_rest_server(Common::HTTP_REST_PORT);
 
 Common common;
 LedControl ledControl;
 ButtonControl buttonControl;
+MeshControl meshControl;
 
 // User stub
 // void sendMessage(); // Prototype so PlatformIO doesn't complain
 
 // Task taskSendMessage(TASK_SECOND * 1, TASK_FOREVER, &sendMessage);
-
-#define MESH_PREFIX "zfrWemosMesh"
-#define MESH_PASSWORD "potatochips3214"
-#define MESH_PORT 5555
-#define MESH_CHANNEL 1
-#define HOSTNAME "WEMOS-MESH"
-#define STATION_SSID "Kukucs Guest"
-#define STATION_PASSWORD "kukucs357"
-
-
-// list of all the nodes in the mesh (excluding the current one)
-std::list<uint32_t> meshNodes;
-// extern uint32_t myNodeID;
-
 
 
 int Common::HTTP_REST_PORT;
@@ -66,7 +48,7 @@ void setGlobalVariables(){
     Common::HTTP_REST_PORT = 80;
     Common::WIFI_RETRY_DELAY = 500;
 
-    Common::NUM_LEDS = 8;
+    Common::NUM_LEDS = 4;
 
     Common::buttonState = 0;
     Common::lastButtonState = 0;
@@ -82,49 +64,6 @@ void setGlobalVariables(){
     Common::noNodes = 0;
 }
 
-
-
-// Needed for painless library
-void receivedCallback(uint32_t from, String &msg)
-{
-    Serial.printf("startHere: Received from %u msg=%s\n", from, msg.c_str());
-    if (msg == "switch light mode")
-    {
-        ledControl.changeLEDPattern();
-    }
-}
-
-void newConnectionCallback(uint32_t nodeId)
-{
-    Serial.printf("--> startHere: New Connection, nodeId = %u\n", nodeId);
-}
-
-void changedConnectionCallback()
-{
-    Serial.printf("Changed connections %s\n", mesh.subConnectionJson().c_str());
-
-
-    meshNodes = mesh.getNodeList();
-    int nodeNumber = meshNodes.size();
-    Common::noNodes = meshNodes.size() + 1;
-
-    String nodesOutput = "";
-
-    Serial.printf("%d mesh in the network: ", Common::noNodes);
-    Serial.printf("(My ID) %u | ", Common::myNodeID);
-    for (std::list<uint32_t>::iterator node = meshNodes.begin(); node != meshNodes.end(); ++node)
-    {
-        Serial.printf("%u | ", *node);
-    }
-    Serial.printf("\n");
-
-    // LED update could be put here :)
-}
-
-void nodeTimeAdjustedCallback(int32_t offset)
-{
-    Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(), offset);
-}
 
 void config_rest_server_routing()
 {
@@ -149,35 +88,7 @@ void setup()
 
     Serial.begin(115200);
 
-
-    //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
-    mesh.setDebugMsgTypes(ERROR | STARTUP); // set before init() so that you can see startup messages
-
-    mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT, WIFI_AP_STA, MESH_CHANNEL);
-    mesh.onReceive(&receivedCallback);
-    mesh.onNewConnection(&newConnectionCallback);
-    mesh.onChangedConnections(&changedConnectionCallback);
-    mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
-
-    Common::myNodeID = mesh.getNodeId();
-    Serial.printf("MyNodeID: %u\n", Common::myNodeID);
-
-    if (Common::myNodeID == 3943449884)
-    {
-        mesh.setRoot(); //maybe helps with stabilization?
-        mesh.stationManual(STATION_SSID, STATION_PASSWORD);
-        mesh.setHostname(HOSTNAME);
-        Serial.printf("Connected to WiFi network %s\n", STATION_SSID);
-    }
-    else
-    {
-        mesh.setContainsRoot(); //maybe helps with stabilization?
-    }
-
-
-    // userScheduler.addTask(taskSendMessage);
-    // taskSendMessage.enable();
-
+    meshControl.setupMesh();
 
     // rest api
     config_rest_server_routing();
@@ -187,8 +98,8 @@ void setup()
 
 void loop()
 {
-    userScheduler.execute(); // it will run mesh scheduler as well
-    mesh.update();
+    // userScheduler.execute(); // it will run mesh scheduler as well
+    meshControl.updateMesh();
     http_rest_server.handleClient();
 
     buttonControl.handdleButtonPress();
@@ -202,12 +113,11 @@ void loop()
 }
 
 // REST Server stuff
-
 void getNodesInMesh()
 {
-    http_rest_server.send(200, "application/json", mesh.subConnectionJson().c_str());
+    String meshNodes = meshControl.getNodesInMesh();
+    http_rest_server.send(200, "application/json", meshNodes.c_str());
 }
-
 
 
 void apiChangeLedPattern()

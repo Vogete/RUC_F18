@@ -1,5 +1,5 @@
-#ifndef _BUTTONS_POTATO_H_
-#define _BUTTONS_POTATO_H_
+#ifndef _BUTTONS_H_
+#define _BUTTONS_H_
 
 class ButtonControl
 {

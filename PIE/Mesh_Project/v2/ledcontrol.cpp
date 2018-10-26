@@ -1,15 +1,14 @@
 #include "ledcontrol.h"
 #include "common.h"
-#include <FastLED.h>
 
 #define DATA_PIN D2
-
-
 
 // -------------LED ------------
 //stop LED flickering when wifi is on: https://github.com/FastLED/FastLED/issues/306
 // #define FASTLED_ALLOW_INTERRUPTS 0
-#define FASTLED_INTERRUPT_RETRY_COUNT 0
+#define FASTLED_INTERRUPT_RETRY_COUNT 0 // include BEFORE FastLED.h
+
+#include <FastLED.h>
 
 LedControl::LedControl(){
 }
@@ -65,6 +64,17 @@ void LedControl::ledRainbow()
         uint8_t hue = round((255 / Common::NUM_LEDS) * i);
         leds[i] = CHSV(hue, 255, 255);
         Serial.println(hue);
+        yield();
+    }
+}
+
+
+void LedControl::ledRed()
+{
+    CRGB leds[Common::NUM_LEDS];
+
+    for (int i = 0; i < Common::NUM_LEDS; i++){
+        leds[i] = CRGB(255, 0, 0);
         yield();
     }
 }

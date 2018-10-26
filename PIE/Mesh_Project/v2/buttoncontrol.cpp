@@ -20,6 +20,7 @@ void ButtonControl::handdleButtonPress()
     {
         if (Common::buttonState == HIGH)
         {
+            Serial.println("Button pressed");
             LedControl ledControl;
             ledControl.changeLEDPattern();
             // sendMessage("switch light mode");
