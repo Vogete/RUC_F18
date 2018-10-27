@@ -1,3 +1,13 @@
+/*
+IMPORTANT NOTES:
+https://github.com/Coopdis/easyMesh/issues/16
+ONLY version 2.3.0 of the esp8266 board package is working!
+
+Most stable easymesh library: https://github.com/sfranzyshen/easyMesh
+PainlessMesh is cool and all, but has time sync issues, and not stable
+*/
+
+
 #include "common.h"
 
 #include <list>
@@ -15,10 +25,6 @@
 // Scheduler userScheduler; // to control your personal task
 ESP8266WebServer http_rest_server(Common::HTTP_REST_PORT);
 
-Common common;
-LedControl ledControl;
-ButtonControl buttonControl;
-MeshControl meshControl;
 
 // User stub
 // void sendMessage(); // Prototype so PlatformIO doesn't complain
@@ -48,7 +54,7 @@ void setGlobalVariables(){
     Common::HTTP_REST_PORT = 80;
     Common::WIFI_RETRY_DELAY = 500;
 
-    Common::NUM_LEDS = 4;
+    Common::NUM_LEDS = 9;
 
     Common::buttonState = 0;
     Common::lastButtonState = 0;
@@ -61,7 +67,7 @@ void setGlobalVariables(){
     Common::ledPattern = 1;
 
     Common::myNodeID = 0;
-    Common::noNodes = 0;
+    Common::noNodes = 1;
 }
 
 
@@ -81,14 +87,14 @@ void config_rest_server_routing()
 void setup()
 {
     setGlobalVariables();
-    buttonControl.setupButtons();
+    ButtonControl::setupButtons();
+    LedControl::setupLed();
 
-    ledControl.setupLed();
     delay(1000);
 
     Serial.begin(115200);
 
-    meshControl.setupMesh();
+    MeshControl::setupMesh();
 
     // rest api
     config_rest_server_routing();
@@ -99,30 +105,30 @@ void setup()
 void loop()
 {
     // userScheduler.execute(); // it will run mesh scheduler as well
-    meshControl.updateMesh();
+    MeshControl::updateMesh();
     http_rest_server.handleClient();
 
-    buttonControl.handdleButtonPress();
+    ButtonControl::handdleButtonPress();
 
     if (millis() - Common::timer > 1000 / Common::frameRate)
     {
         Common::timer = millis();
-        ledControl.showLEDPattern();
-        ledControl.loopLed();
+        LedControl::showLEDPattern();
+        LedControl::loopLed();
     }
 }
 
 // REST Server stuff
 void getNodesInMesh()
 {
-    String meshNodes = meshControl.getNodesInMesh();
+    String meshNodes = MeshControl::getNodesInMesh();
     http_rest_server.send(200, "application/json", meshNodes.c_str());
 }
 
 
 void apiChangeLedPattern()
 {
-    ledControl.changeLEDPattern();
-    common.sendMessage("switch light mode");
-    http_rest_server.send(200, "text/html", "Changed LED Patter! :)");
+    LedControl::changeLEDPattern();
+    MeshControl::sendMeshMessage("switch light mode");
+    http_rest_server.send(200, "text/html", "Changed LED Pattern! :)");
 }

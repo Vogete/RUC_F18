@@ -29,7 +29,6 @@ public:
     static uint32_t myNodeID;
     static int noNodes;
 
-    void sendMessage(std::string message, uint32_t destination = 0);
 };
 
 // extern std::string MESH_PREFIX = "zfrWemosMesh";

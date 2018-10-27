@@ -1,6 +1,7 @@
 #include "buttoncontrol.h"
 #include "common.h"
 #include "ledcontrol.h"
+#include "meshcontrol.h"
 
 #define BUTTON_PIN D8
 
@@ -21,9 +22,8 @@ void ButtonControl::handdleButtonPress()
         if (Common::buttonState == HIGH)
         {
             Serial.println("Button pressed");
-            LedControl ledControl;
-            ledControl.changeLEDPattern();
-            // sendMessage("switch light mode");
+            LedControl::changeLEDPattern();
+            MeshControl::sendMeshMessage("switch light mode");
         }
         Common::lastButtonState = Common::buttonState;
         // delay(30);

@@ -13,10 +13,10 @@
 #define STATION_PASSWORD "kukucs357"
 
 
-easyMesh mesh;
+easyMesh MeshControl::mesh;
 
 // list of all the nodes in the mesh (excluding the current one)
-std::list<uint32_t> meshNodes;
+std::list<uint32_t> MeshControl::meshNodes;
 
 
 
@@ -34,11 +34,10 @@ void MeshControl::updateMesh()
 
 void MeshControl::receivedCallback(uint32_t from, String &msg)
 {
-    Serial.printf("startHere: Received from %u msg=%s\n", from, msg.c_str());
+    Serial.printf("message received from %u msg=%s\n", from, msg.c_str());
     if (msg == "switch light mode")
     {
-        LedControl ledControl;
-        ledControl.changeLEDPattern();
+        // LedControl::changeLEDPattern();
     }
 }
 
@@ -56,10 +55,12 @@ void MeshControl::sendMeshMessage(String message, uint32_t destination)
     if (destination == 0)
     {
         mesh.sendBroadcast(message);
+        Serial.printf("mesasge broadcasted: %s", message.c_str());
     }
     else
     {
         mesh.sendSingle(destination, message);
+        Serial.printf("mesasge sent to %u : %s", destination, message.c_str());
     }
 
 }

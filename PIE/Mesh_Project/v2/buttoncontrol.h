@@ -5,8 +5,8 @@ class ButtonControl
 {
 public:
     ButtonControl();
-    void setupButtons();
-    void handdleButtonPress();
+    static void setupButtons();
+    static void handdleButtonPress();
 };
 
 

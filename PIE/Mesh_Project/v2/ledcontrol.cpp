@@ -1,21 +1,16 @@
 #include "ledcontrol.h"
-#include "common.h"
-
 #define DATA_PIN D2
 
-// -------------LED ------------
-//stop LED flickering when wifi is on: https://github.com/FastLED/FastLED/issues/306
-// #define FASTLED_ALLOW_INTERRUPTS 0
-#define FASTLED_INTERRUPT_RETRY_COUNT 0 // include BEFORE FastLED.h
 
-#include <FastLED.h>
+
+CRGB LedControl::leds[9];
 
 LedControl::LedControl(){
 }
 
 void LedControl::setupLed()
 {
-    CRGB leds[Common::NUM_LEDS];
+    // CRGB leds[Common::NUM_LEDS];
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, Common::NUM_LEDS);
     FastLED.setMaxRefreshRate(200);
 }
@@ -57,13 +52,11 @@ void LedControl::changeLEDPattern()
 
 void LedControl::ledRainbow()
 {
-    CRGB leds[Common::NUM_LEDS];
-
     for (int i = 0; i < Common::NUM_LEDS; i++)
     {
         uint8_t hue = round((255 / Common::NUM_LEDS) * i);
         leds[i] = CHSV(hue, 255, 255);
-        Serial.println(hue);
+        // Serial.println(hue);
         yield();
     }
 }
@@ -71,8 +64,6 @@ void LedControl::ledRainbow()
 
 void LedControl::ledRed()
 {
-    CRGB leds[Common::NUM_LEDS];
-
     for (int i = 0; i < Common::NUM_LEDS; i++){
         leds[i] = CRGB(255, 0, 0);
         yield();
@@ -81,7 +72,7 @@ void LedControl::ledRed()
 
 void LedControl::ledNodeCount(int noNodes)
 {
-    CRGB leds[Common::NUM_LEDS];
+    // CRGB leds[Common::NUM_LEDS];
 
     // int noNodes = meshNodes.size() + 1;
     for (int i = 0; i < Common::NUM_LEDS; i++)

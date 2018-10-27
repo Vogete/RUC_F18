@@ -17,7 +17,7 @@ public:
 
     static void setupMesh();
     static void updateMesh();
-    static void sendMeshMessage(String message, uint32_t destination);
+    static void sendMeshMessage(String message, uint32_t destination = 0);
     static String getNodesInMesh();
 
 };
