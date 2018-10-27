@@ -26,7 +26,7 @@ void ButtonControl::handdleButtonPress()
             MeshControl::sendMeshMessage("switch light mode");
         }
         Common::lastButtonState = Common::buttonState;
-        // delay(30);
+        delay(30);
     }
 }
 

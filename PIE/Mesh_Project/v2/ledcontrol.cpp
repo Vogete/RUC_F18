@@ -46,8 +46,6 @@ void LedControl::changeLEDPattern()
     {
         Common::ledPattern = 1;
     }
-
-    showLEDPattern();
 }
 
 void LedControl::ledRainbow()

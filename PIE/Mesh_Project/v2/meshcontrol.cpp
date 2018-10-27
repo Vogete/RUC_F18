@@ -37,13 +37,14 @@ void MeshControl::receivedCallback(uint32_t from, String &msg)
     Serial.printf("message received from %u msg=%s\n", from, msg.c_str());
     if (msg == "switch light mode")
     {
-        // LedControl::changeLEDPattern();
+        LedControl::changeLEDPattern();
     }
 }
 
 void MeshControl::newConnectionCallback(bool adopt)
 {
     Serial.printf("startHere: New Connection, adopt = %d\n", adopt);
+    Common::noNodes = mesh.connectionCount() + 1;
 }
 
 void MeshControl::sendMeshMessage(String message, uint32_t destination)
