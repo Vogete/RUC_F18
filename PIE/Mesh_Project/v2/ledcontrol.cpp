@@ -1,5 +1,5 @@
 #include "ledcontrol.h"
-#define DATA_PIN D2
+#define DATA_PIN 4 //pin D2
 
 
 

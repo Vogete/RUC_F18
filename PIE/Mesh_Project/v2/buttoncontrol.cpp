@@ -3,7 +3,7 @@
 #include "ledcontrol.h"
 #include "meshcontrol.h"
 
-#define BUTTON_PIN D8
+#define BUTTON_PIN 15 //D8
 
 
 ButtonControl::ButtonControl(){

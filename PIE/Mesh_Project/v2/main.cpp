@@ -1,30 +1,35 @@
-/*
+/*******************************************************************************
+********************************************************************************
 IMPORTANT NOTES:
 https://github.com/Coopdis/easyMesh/issues/16
 ONLY version 2.3.0 of the esp8266 board package is working!
 
 Most stable easymesh library: https://github.com/sfranzyshen/easyMesh
 PainlessMesh is cool and all, but has time sync issues, and not stable
-*/
+
+Other useful stuff:
+https://github.com/BlackEdder/easyMesheD
 
 
-#include "common.h"
+
+Pin mapping for wemos D1 mini (GPIO numbers):
+    D8 = 15
+    D6 = 12
+    D2 = 4
+********************************************************************************
+*******************************************************************************/
+
 
 #include <list>
-
-// REST Server
-#include <stdio.h>
-#include <ESP8266WebServer.h>
-#include <ArduinoJson.h>
+#include "common.h"
 
 #include "buttoncontrol.h"
 #include "ledcontrol.h"
 #include "meshcontrol.h"
+#include "httpservercontrol.h"
 
 
 // Scheduler userScheduler; // to control your personal task
-ESP8266WebServer http_rest_server(Common::HTTP_REST_PORT);
-
 
 // User stub
 // void sendMessage(); // Prototype so PlatformIO doesn't complain
@@ -50,6 +55,10 @@ byte Common::ledPattern;
 uint32_t Common::myNodeID;
 int Common::noNodes;
 
+
+// ESP8266WebServer HttpServerControl::http_rest_server;
+
+
 void setGlobalVariables(){
     Common::HTTP_REST_PORT = 80;
     Common::WIFI_RETRY_DELAY = 500;
@@ -71,18 +80,6 @@ void setGlobalVariables(){
 }
 
 
-void config_rest_server_routing()
-{
-    http_rest_server.on("/", HTTP_GET, []() {
-        http_rest_server.send(200, "text/html",
-                              "Welcome to the ESP8266 REST Web Server");
-    });
-    // http_rest_server.on("/mesh", HTTP_GET, getNodesInMesh);
-    // http_rest_server.on("/changeLEDPattern", HTTP_GET, apiChangeLedPattern);
-
-    // http_rest_server.on("/leds", HTTP_POST, post_put_leds);
-    // http_rest_server.on("/leds", HTTP_PUT, post_put_leds);
-}
 
 void setup()
 {
@@ -96,9 +93,10 @@ void setup()
 
     MeshControl::setupMesh();
 
+    // HttpServerControl::http_rest_server(Common::HTTP_REST_PORT);
     // rest api
-    config_rest_server_routing();
-    http_rest_server.begin();
+    HttpServerControl::config_rest_server_routing();
+    HttpServerControl::http_rest_server.begin();
     Serial.println("HTTP REST Server Started");
 }
 
@@ -106,7 +104,7 @@ void loop()
 {
     // userScheduler.execute(); // it will run mesh scheduler as well
     MeshControl::updateMesh();
-    http_rest_server.handleClient();
+    HttpServerControl::http_rest_server.handleClient();
 
     ButtonControl::handdleButtonPress();
 
@@ -118,17 +116,3 @@ void loop()
     }
 }
 
-// REST Server stuff
-void getNodesInMesh()
-{
-    String meshNodes = MeshControl::getNodesInMesh();
-    http_rest_server.send(200, "application/json", meshNodes.c_str());
-}
-
-
-void apiChangeLedPattern()
-{
-    LedControl::changeLEDPattern();
-    MeshControl::sendMeshMessage("switch light mode");
-    http_rest_server.send(200, "text/html", "Changed LED Pattern! :)");
-}
