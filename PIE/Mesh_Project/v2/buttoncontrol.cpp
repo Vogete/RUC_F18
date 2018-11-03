@@ -3,27 +3,28 @@
 #include "ledcontrol.h"
 #include "meshcontrol.h"
 
-#define BUTTON_PIN 15 //D8
+// #define BUTTON_PIN 15 //D8
 
+uint8_t buttonPin;
 
-ButtonControl::ButtonControl(){
+ButtonControl::ButtonControl(uint8_t pinNumber){
+    buttonPin = pinNumber;
+    setupButton(buttonPin);
 }
 
-void ButtonControl::setupButtons()
+void ButtonControl::setupButton(uint8_t pinNumber)
 {
-    pinMode(BUTTON_PIN, INPUT);
+    pinMode(pinNumber, INPUT);
 }
 
-void ButtonControl::handdleButtonPress()
+void ButtonControl::handdleButtonPress(void (*callbackFunc)())
 {
-    Common::buttonState = digitalRead(BUTTON_PIN);
+    Common::buttonState = digitalRead(buttonPin);
     if (Common::buttonState != Common::lastButtonState)
     {
         if (Common::buttonState == HIGH)
         {
-            Serial.println("Button pressed");
-            LedControl::changeLEDPattern();
-            MeshControl::sendMeshMessage("switch light mode");
+            (*callbackFunc) ();
         }
         Common::lastButtonState = Common::buttonState;
         delay(30);

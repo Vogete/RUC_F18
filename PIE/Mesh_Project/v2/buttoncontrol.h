@@ -3,10 +3,13 @@
 
 class ButtonControl
 {
+private:
 public:
-    ButtonControl();
-    static void setupButtons();
-    static void handdleButtonPress();
+    ButtonControl(uint8_t pinNuber);
+
+    uint8_t buttonPin;
+    void setupButton(uint8_t pinNuber);
+    void handdleButtonPress(void (*callbackFunc)());
 };
 
 

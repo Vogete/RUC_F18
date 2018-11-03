@@ -28,6 +28,8 @@ Pin mapping for wemos D1 mini (GPIO numbers):
 #include "meshcontrol.h"
 #include "httpservercontrol.h"
 
+ButtonControl button1(15); //D8
+ButtonControl pairingButton(12) //D6
 
 // Scheduler userScheduler; // to control your personal task
 
@@ -80,11 +82,19 @@ void setGlobalVariables(){
 }
 
 
+void SwitchLightMode(){
+
+    Serial.println("Button pressed in callback");
+    LedControl::changeLEDPattern();
+    MeshControl::sendMeshMessage("switch light mode");
+
+}
+
 
 void setup()
 {
     setGlobalVariables();
-    ButtonControl::setupButtons();
+
     LedControl::setupLed();
 
     delay(1000);
@@ -106,7 +116,8 @@ void loop()
     MeshControl::updateMesh();
     HttpServerControl::http_rest_server.handleClient();
 
-    ButtonControl::handdleButtonPress();
+    void (*lightmodeSwitchPtr)() = &SwitchLightMode;
+    button1.handdleButtonPress(lightmodeSwitchPtr);
 
     if (millis() - Common::timer > 1000 / Common::frameRate)
     {
@@ -115,4 +126,7 @@ void loop()
         LedControl::loopLed();
     }
 }
+
+
+
 
