@@ -4,12 +4,26 @@
 class ButtonControl
 {
 private:
+    void shortButtonPress();
+    void longButtonPress();
+
+    void (*shortButtonPressPtr)();
+    void (*longButtonPressPtr)();
+
+    long buttonTimer;
+    bool buttonActive;
+    bool longPressActive;
+
 public:
+    long longPressTime;
+    uint8_t buttonPin;
+
     ButtonControl(uint8_t pinNuber);
 
-    uint8_t buttonPin;
     void setupButton(uint8_t pinNuber);
-    void handdleButtonPress(void (*callbackFunc)());
+    void handdleButtonPress();
+    void setShortButtonPressMethod(void (*callbackFunc)());
+    void setLongButtonPressMethod(void (*callbackFunc)());
 };
 
 

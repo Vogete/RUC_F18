@@ -12,10 +12,18 @@ https://github.com/BlackEdder/easyMesheD
 
 
 
-Pin mapping for wemos D1 mini (GPIO numbers):
-    D8 = 15
-    D6 = 12
+Pin mapping for wemos D1 mini (GPIO numbers) (https://github.com/esp8266/Arduino/blob/master/variants/d1_mini/pins_arduino.h#L49-L61):
+    D0 = 16
+    D1 = 5
     D2 = 4
+    D3 = 0
+    D4 = 2 //LED_BUILTIN
+    D5 = 14
+    D6 = 12
+    D7 = 13
+    D8 = 15
+    RX = 3
+    TX = 1
 ********************************************************************************
 *******************************************************************************/
 
@@ -29,7 +37,7 @@ Pin mapping for wemos D1 mini (GPIO numbers):
 #include "httpservercontrol.h"
 
 ButtonControl button1(15); //D8
-ButtonControl pairingButton(12) //D6
+ButtonControl pairingButton(12); //D6
 
 // Scheduler userScheduler; // to control your personal task
 
@@ -83,24 +91,18 @@ void setGlobalVariables(){
 
 
 void SwitchLightMode(){
-
     Serial.println("Button pressed in callback");
     LedControl::changeLEDPattern();
     MeshControl::sendMeshMessage("switch light mode");
-
 }
 
 
 void setup()
 {
     setGlobalVariables();
-
     LedControl::setupLed();
-
     delay(1000);
-
     Serial.begin(115200);
-
     MeshControl::setupMesh();
 
     // HttpServerControl::http_rest_server(Common::HTTP_REST_PORT);
@@ -108,6 +110,9 @@ void setup()
     HttpServerControl::config_rest_server_routing();
     HttpServerControl::http_rest_server.begin();
     Serial.println("HTTP REST Server Started");
+
+    void (*lightmodeSwitchPtr)() = &SwitchLightMode;
+    button1.setShortButtonPressMethod(lightmodeSwitchPtr);
 }
 
 void loop()
@@ -116,8 +121,7 @@ void loop()
     MeshControl::updateMesh();
     HttpServerControl::http_rest_server.handleClient();
 
-    void (*lightmodeSwitchPtr)() = &SwitchLightMode;
-    button1.handdleButtonPress(lightmodeSwitchPtr);
+    button1.handdleButtonPress();
 
     if (millis() - Common::timer > 1000 / Common::frameRate)
     {

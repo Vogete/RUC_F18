@@ -31,7 +31,10 @@ void LedControl::showLEDPattern()
     case 2:
         ledRainbow();
         break;
+    case 3:
+        ledRed();
     default:
+        ledNodeCount(Common::noNodes);
         break;
     }
 }

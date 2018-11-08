@@ -7,9 +7,25 @@
 
 uint8_t buttonPin;
 
+long longPressTime;
+long buttonTimer;
+bool buttonActive;
+bool longPressActive;
+
+void (*shortButtonPressPtr)();
+void (*longButtonPressPtr)();
+
 ButtonControl::ButtonControl(uint8_t pinNumber){
     buttonPin = pinNumber;
     setupButton(buttonPin);
+
+    buttonTimer = 0;
+    longPressTime = 1000;
+    buttonActive = false;
+    longPressActive = false;
+
+    shortButtonPressPtr = NULL;
+    longButtonPressPtr = NULL;
 }
 
 void ButtonControl::setupButton(uint8_t pinNumber)
@@ -17,19 +33,60 @@ void ButtonControl::setupButton(uint8_t pinNumber)
     pinMode(pinNumber, INPUT);
 }
 
-void ButtonControl::handdleButtonPress(void (*callbackFunc)())
+void ButtonControl::handdleButtonPress()
 {
     Common::buttonState = digitalRead(buttonPin);
-    if (Common::buttonState != Common::lastButtonState)
+
+	if (Common::buttonState == HIGH) {
+        if (buttonActive == false) {
+			buttonActive = true;
+			buttonTimer = millis();
+		}
+
+		if ( (millis() - buttonTimer > longPressTime) && (longPressActive == false) ) {
+			longPressActive = true;
+            longButtonPress();
+		}
+	} else {
+		if (buttonActive == true) {
+			if (longPressActive == true) {
+				longPressActive = false;
+			} else {
+                shortButtonPress();
+			}
+			buttonActive = false;
+		}
+	}
+
+}
+
+void ButtonControl::shortButtonPress() {
+
+    if (shortButtonPressPtr != NULL) {
+        (*shortButtonPressPtr)();
+    }
+    else
     {
-        if (Common::buttonState == HIGH)
-        {
-            (*callbackFunc) ();
-        }
-        Common::lastButtonState = Common::buttonState;
-        delay(30);
+        Serial.println("POINTER NULL (short press)");
+    }
+
+}
+
+void ButtonControl::longButtonPress() {
+    if (longButtonPressPtr != NULL) {
+        (*longButtonPressPtr)();
+    }
+    else
+    {
+        Serial.println("POINTER NULL (long press)");
     }
 }
 
+void ButtonControl::setShortButtonPressMethod(void (*callbackFunc)()){
 
-// ButtonControl buttonControl = ButtonControl();
+    shortButtonPressPtr = *callbackFunc;
+}
+
+void ButtonControl::setLongButtonPressMethod(void (*callbackFunc)()){
+    longButtonPressPtr = *callbackFunc;
+}
