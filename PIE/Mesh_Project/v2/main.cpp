@@ -28,13 +28,16 @@ Pin mapping for wemos D1 mini (GPIO numbers) (https://github.com/esp8266/Arduino
 *******************************************************************************/
 
 
+#include <string>
 #include <list>
-#include "common.h"
 
+#include "common.h"
 #include "buttoncontrol.h"
 #include "ledcontrol.h"
 #include "meshcontrol.h"
 #include "httpservercontrol.h"
+#include "eepromcontrol.h"
+#include "wificredstruct.h"
 
 ButtonControl button1(15); //D8
 ButtonControl pairingButton(12); //D6
@@ -103,7 +106,33 @@ void setup()
     LedControl::setupLed();
     delay(1000);
     Serial.begin(115200);
-    MeshControl::setupMesh();
+
+    Serial.println("--------------------");
+
+    WifiCredStruct testData = {
+        "storedTestSSID",
+        "testpassword",
+        1234
+    };
+    Serial.println(sizeof(testData));
+
+    EepromControl test;
+    test.storeStruct(&testData, sizeof(testData));
+
+    WifiCredStruct backData;
+    test.loadStruct(&backData, sizeof(testData));
+
+    Serial.println(backData.SSID);
+    Serial.println(backData.Password);
+    Serial.println(backData.CommPort);
+
+    Serial.println("--------------------");
+
+    String meshSSID = backData.SSID;
+    String meshPW = backData.Password;
+
+    // MeshControl::setupMesh("zfrWemosMesh", "potatochips3214");
+    MeshControl::setupMesh(meshSSID, meshPW);
 
     // HttpServerControl::http_rest_server(Common::HTTP_REST_PORT);
     // rest api
@@ -111,8 +140,8 @@ void setup()
     HttpServerControl::http_rest_server.begin();
     Serial.println("HTTP REST Server Started");
 
-    void (*lightmodeSwitchPtr)() = &SwitchLightMode;
-    button1.setShortButtonPressMethod(lightmodeSwitchPtr);
+    // void (*lightmodeSwitchPtr)() = &SwitchLightMode;
+    button1.setShortButtonPressMethod(&SwitchLightMode);
 }
 
 void loop()

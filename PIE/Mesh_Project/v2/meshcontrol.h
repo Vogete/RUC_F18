@@ -1,6 +1,7 @@
 #ifndef _MESHCONTROL_H_
 #define _MESHCONTROL_H_
 
+#include <string>
 #include <easyMesh.h>
 #include <list>
 
@@ -15,7 +16,7 @@ private:
 public:
     MeshControl();
 
-    static void setupMesh();
+    static void setupMesh(String ssid, String password, uint16_t port = 5555);
     static void updateMesh();
     static void sendMeshMessage(String message, uint32_t destination = 0);
     static String getNodesInMesh();

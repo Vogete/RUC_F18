@@ -2,11 +2,11 @@
 #include "meshcontrol.h"
 #include "ledcontrol.h"
 
-#include <string>
 
-#define MESH_PREFIX "zfrWemosMesh"
-#define MESH_PASSWORD "potatochips3214"
-#define MESH_PORT 5555
+
+// #define MESH_PREFIX "zfrWemosMesh"
+// #define MESH_PASSWORD "potatochips3214"
+// #define MESH_PORT 5555
 #define MESH_CHANNEL 1
 #define HOSTNAME "WEMOS-MESH"
 #define STATION_SSID "Kukucs Guest"
@@ -72,15 +72,12 @@ String MeshControl::getNodesInMesh()
     // return mesh.subConnectionJson();
 }
 
-
-
-
-void MeshControl::setupMesh()
+void MeshControl::setupMesh(String ssid, String password, uint16_t port)
 {
     //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
     mesh.setDebugMsgTypes(ERROR | STARTUP); // set before init() so that you can see startup messages
 
-    mesh.init(MESH_PREFIX, MESH_PASSWORD, MESH_PORT);
+    mesh.init(ssid, password, port);
     mesh.setReceiveCallback( &receivedCallback );
     mesh.setNewConnectionCallback( &newConnectionCallback );
 
