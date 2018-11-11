@@ -30,6 +30,7 @@ Pin mapping for wemos D1 mini (GPIO numbers) (https://github.com/esp8266/Arduino
 
 #include <string>
 #include <list>
+#include <ArduinoJson.h>
 
 #include "common.h"
 #include "buttoncontrol.h"
@@ -37,7 +38,7 @@ Pin mapping for wemos D1 mini (GPIO numbers) (https://github.com/esp8266/Arduino
 #include "meshcontrol.h"
 #include "httpservercontrol.h"
 #include "eepromcontrol.h"
-#include "wificredstruct.h"
+#include "configstruct.h"
 
 ButtonControl button1(15); //D8
 ButtonControl pairingButton(12); //D6
@@ -109,30 +110,25 @@ void setup()
 
     Serial.println("--------------------");
 
-    WifiCredStruct testData = {
-        "storedTestSSID",
-        "testpassword",
-        1234
-    };
-    Serial.println(sizeof(testData));
+    EepromControl eepromControl;
 
-    EepromControl test;
-    test.storeStruct(&testData, sizeof(testData));
+    // *******************************
+        eepromControl.InitConfigFile();
+    // *******************************
 
-    WifiCredStruct backData;
-    test.loadStruct(&backData, sizeof(testData));
 
-    Serial.println(backData.SSID);
-    Serial.println(backData.Password);
-    Serial.println(backData.CommPort);
+    String configDataString = eepromControl.ReadFile("config.json");
+    ConfigStruct configData = eepromControl.JSONStringToConfig(configDataString);
 
-    Serial.println("--------------------");
+    Serial.println(configData.isPairingMode);
+    Serial.println(configData.SSID);
+    Serial.println(configData.Password);
+    Serial.println(configData.CommPort);
 
-    String meshSSID = backData.SSID;
-    String meshPW = backData.Password;
 
+
+    MeshControl::setupMesh(configData.SSID, configData.Password, configData.CommPort);
     // MeshControl::setupMesh("zfrWemosMesh", "potatochips3214");
-    MeshControl::setupMesh(meshSSID, meshPW);
 
     // HttpServerControl::http_rest_server(Common::HTTP_REST_PORT);
     // rest api

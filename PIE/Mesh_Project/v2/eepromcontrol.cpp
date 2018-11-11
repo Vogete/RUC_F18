@@ -1,71 +1,140 @@
 #include "eepromcontrol.h"
+#include <algorithm>
 #include <EEPROM.h>
+#include <FS.h>
+#include <sstream>
+#include <ArduinoJson.h>
 
-EepromControl::EepromControl() {
+EepromControl::EepromControl()
+{
 }
 
-// void EepromControl::dataToEEPROM(WifiCredStruct data, uint32_t eepromAddress)
+// void EepromControl::storeStruct(void *data_source, size_t size, int address)
 // {
-//     EEPROM.begin(512);
-
-//     // for(uint32_t i = 0; i < textToStore.length(); i++){
-//     //     EEPROM.write(eepromAddress, textToStore[i]);
-//     // }
-
-//     // bool success = EEPROM.commit();
-//     // return success;
-
-//     EEPROM.write(eepromAddress, data);
-//     EEPROM.commit();
-
+//   EEPROM.begin(size * 2);
+//   for (size_t i = 0; i < size; i++)
+//   {
+//     char data = ((char *)data_source)[i];
+//     EEPROM.write(i + address, data);
+//   }
+//   EEPROM.commit();
 // }
 
-// WifiCredStruct EepromControl::eepromToData(uint32_t eepromAddress)
+// void EepromControl::loadStruct(void *data_dest, size_t size, int address)
 // {
-//     // // TODO
-//     // std::string temp = "";
-//     // uint32_t length = 512;
-
-
-//     // for(uint32_t i = 0; i < eepromAddress + length; ++i)
-//     // {
-
-//     //     if (char(EEPROM.read(i)) != ';') {
-//     //         temp = temp + char(EEPROM.read(i));
-//     //     }
-//     //     else
-//     //     {
-//     //         i = eepromAddress+length;
-//     //     }
-//     // }
-
-//     // return temp;
-
-//     WifiCredStruct data = EEPROM.read(eepromAddress);
-
-//     return data;
+//   EEPROM.begin(size * 2);
+//   for (size_t i = 0; i < size; i++)
+//   {
+//     char data = EEPROM.read(i + address);
+//     ((char *)data_dest)[i] = data;
+//   }
 // }
 
-
-
-
-void EepromControl::storeStruct(void *data_source, size_t size)
+void EepromControl::FormatSPIFFS()
 {
-  EEPROM.begin(size * 2);
-  for(size_t i = 0; i < size; i++)
+  // Takes a REALLLYY LONG TIME!!! (like half a minute)
+  SPIFFS.begin();
+  SPIFFS.format();
+}
+
+String EepromControl::ReadFile(String fileName)
+{
+  String path = "/" + fileName;
+  String fileData = "";
+
+  if (SPIFFS.exists(path))
   {
-    char data = ((char *)data_source)[i];
-    EEPROM.write(i, data);
+    File f = SPIFFS.open(path, "r");
+
+    if (f && f.size())
+    {
+
+      while (f.available())
+      {
+        fileData += char(f.read());
+      }
+      f.close();
+
+    }
+    else
+    {
+
+    }
+
   }
-  EEPROM.commit();
+  SPIFFS.end();
+
+  return fileData;
 }
 
-void EepromControl::loadStruct(void *data_dest, size_t size)
+
+void EepromControl::WriteFile(String fileName, String data)
 {
-    EEPROM.begin(size * 2);
-    for(size_t i = 0; i < size; i++)
-    {
-        char data = EEPROM.read(i);
-        ((char *)data_dest)[i] = data;
-    }
+  String path = "/" + fileName;
+
+  // open file for writing
+  File f = SPIFFS.open(path, "w");
+  if (!f) {
+      Serial.println("file open failed");
+  }
+  f.print(data);
+
+  f.close();
+
+}
+
+
+
+String EepromControl::ConfigToJSONString(ConfigStruct config)
+{
+  StaticJsonBuffer<300> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+
+  root["isPairing"] = config.isPairingMode;
+  root["MeshSSID"] = config.SSID;
+  root["MeshPassword"] = config.Password;
+  root["MeshPort"] = config.CommPort;
+
+  String text;
+  root.printTo(text);
+
+  return text;
+}
+
+ConfigStruct EepromControl::JSONStringToConfig(String jsonString)
+{
+  StaticJsonBuffer<300> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(jsonString);
+
+  // Test if parsing succeeds.
+  if (!root.success()) {
+    Serial.println("parseObject() failed");
+  }
+
+  String isPairing = root["isPairing"];
+  String ssid = root["MeshSSID"];
+  String pw = root["MeshPassword"];
+  uint16_t port = root["MeshPort"];
+
+  ConfigStruct config = {
+    isPairing,
+    ssid,
+    pw,
+    port
+  };
+
+  return config;
+}
+
+void EepromControl::InitConfigFile()
+{
+  ConfigStruct testData = {
+      false,
+      "zfrWemosMesh",
+      "potatochips3214",
+      5555
+  };
+  String jsontext = ConfigToJSONString(testData);
+  FormatSPIFFS();
+  WriteFile("config.json", jsontext);
 }
