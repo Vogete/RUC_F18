@@ -3,6 +3,7 @@
 
 #define byte uint8_t
 
+#include <WString.h>
 #include <string>
 #include <list>
 
@@ -28,6 +29,8 @@ public:
 
     static uint32_t myNodeID;
     static int noNodes;
+
+    static String configFileName;
 
 };
 

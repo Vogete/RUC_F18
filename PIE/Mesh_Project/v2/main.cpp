@@ -91,6 +91,8 @@ void setGlobalVariables(){
 
     Common::myNodeID = 0;
     Common::noNodes = 1;
+
+    // Common::configFileName = "config.json";
 }
 
 
@@ -108,17 +110,25 @@ void setup()
     delay(1000);
     Serial.begin(115200);
 
-    Serial.println("--------------------");
 
     EepromControl eepromControl;
 
-    // *******************************
+    ConfigStruct configData;
+    String configDataString = "";
+    configDataString = eepromControl.ReadFile("config.json");
+
+    Serial.println(configDataString.c_str());
+    Serial.println(configDataString.length());
+
+    if (strlen(configDataString.c_str()) > 0) {
+        configData = eepromControl.JSONStringToConfig(configDataString);
+    } else
+    {
         eepromControl.InitConfigFile();
-    // *******************************
+        configDataString = eepromControl.ReadFile("config.json");
+    }
+    configData = eepromControl.JSONStringToConfig(configDataString);
 
-
-    String configDataString = eepromControl.ReadFile("config.json");
-    ConfigStruct configData = eepromControl.JSONStringToConfig(configDataString);
 
     Serial.println(configData.isPairingMode);
     Serial.println(configData.SSID);

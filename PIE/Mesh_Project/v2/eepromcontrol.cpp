@@ -33,12 +33,17 @@ EepromControl::EepromControl()
 void EepromControl::FormatSPIFFS()
 {
   // Takes a REALLLYY LONG TIME!!! (like half a minute)
+  Serial.println("Formatting SPIFFS....(this may take a minute)");
   SPIFFS.begin();
   SPIFFS.format();
+  SPIFFS.end();
+  Serial.println("Finished SPIFFS formatting");
 }
 
 String EepromControl::ReadFile(String fileName)
 {
+  SPIFFS.begin();
+
   String path = "/" + fileName;
   String fileData = "";
 
@@ -70,6 +75,8 @@ String EepromControl::ReadFile(String fileName)
 
 void EepromControl::WriteFile(String fileName, String data)
 {
+  SPIFFS.begin();
+
   String path = "/" + fileName;
 
   // open file for writing
@@ -79,7 +86,10 @@ void EepromControl::WriteFile(String fileName, String data)
   }
   f.print(data);
 
+  f.flush();
   f.close();
+
+  SPIFFS.end();
 
 }
 
@@ -95,10 +105,10 @@ String EepromControl::ConfigToJSONString(ConfigStruct config)
   root["MeshPassword"] = config.Password;
   root["MeshPort"] = config.CommPort;
 
-  String text;
-  root.printTo(text);
+  String jsonString;
+  root.printTo(jsonString);
 
-  return text;
+  return jsonString;
 }
 
 ConfigStruct EepromControl::JSONStringToConfig(String jsonString)
@@ -126,15 +136,17 @@ ConfigStruct EepromControl::JSONStringToConfig(String jsonString)
   return config;
 }
 
+
 void EepromControl::InitConfigFile()
 {
-  ConfigStruct testData = {
+  ConfigStruct initData = {
       false,
-      "zfrWemosMesh",
-      "potatochips3214",
+      "mesh",
+      "mesh",
       5555
   };
-  String jsontext = ConfigToJSONString(testData);
+  String jsontext = ConfigToJSONString(initData);
+
   FormatSPIFFS();
   WriteFile("config.json", jsontext);
 }
