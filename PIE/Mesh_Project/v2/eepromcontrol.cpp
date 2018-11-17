@@ -90,7 +90,6 @@ void EepromControl::WriteFile(String fileName, String data)
   f.close();
 
   SPIFFS.end();
-
 }
 
 
@@ -100,7 +99,7 @@ String EepromControl::ConfigToJSONString(ConfigStruct config)
   StaticJsonBuffer<300> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
 
-  root["isPairing"] = config.isPairingMode;
+  root["PairingMode"] = config.PairingMode;
   root["MeshSSID"] = config.SSID;
   root["MeshPassword"] = config.Password;
   root["MeshPort"] = config.CommPort;
@@ -121,13 +120,13 @@ ConfigStruct EepromControl::JSONStringToConfig(String jsonString)
     Serial.println("parseObject() failed");
   }
 
-  String isPairing = root["isPairing"];
+  byte pairingMode = root["PairingMode"];
   String ssid = root["MeshSSID"];
   String pw = root["MeshPassword"];
   uint16_t port = root["MeshPort"];
 
   ConfigStruct config = {
-    isPairing,
+    pairingMode,
     ssid,
     pw,
     port
@@ -140,13 +139,42 @@ ConfigStruct EepromControl::JSONStringToConfig(String jsonString)
 void EepromControl::InitConfigFile()
 {
   ConfigStruct initData = {
-      false,
+      0,
       "mesh",
       "mesh",
       5555
   };
-  String jsontext = ConfigToJSONString(initData);
 
   FormatSPIFFS();
+  SaveConfigFile(initData);
+}
+
+
+void EepromControl::SaveConfigFile(ConfigStruct config)
+{
+  String jsontext = ConfigToJSONString(config);
   WriteFile("config.json", jsontext);
+}
+
+ConfigStruct EepromControl::ReadConfigFile()
+{
+  ConfigStruct configData;
+  String configDataString = ReadFile("config.json");
+
+  // NEED: validate config file properly
+  Serial.println(configDataString.c_str());
+  if (strlen(configDataString.c_str()) > 0)
+  {
+      // configData = JSONStringToConfig(configDataString);
+  }
+  else
+  {
+      InitConfigFile();
+      configDataString = ReadFile("config.json");
+  }
+
+  configData = JSONStringToConfig(configDataString);
+  // NEED: error handling
+
+  return configData;
 }

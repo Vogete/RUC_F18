@@ -6,7 +6,7 @@
 
 struct ConfigStruct
 {
-    bool isPairingMode;
+    byte PairingMode; //0 no pairing, 1 Client mode (connect to sth), 2 host mode (others can connect)
     String SSID;
     String Password;
     uint16_t CommPort;

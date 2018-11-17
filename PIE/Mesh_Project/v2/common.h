@@ -12,6 +12,8 @@ class Common
 {
 public:
     Common();
+
+    static void RebootDevice();
     static int HTTP_REST_PORT;
     static int WIFI_RETRY_DELAY;
 
@@ -31,6 +33,7 @@ public:
     static int noNodes;
 
     static String configFileName;
+    static byte currentMode;
 
 };
 

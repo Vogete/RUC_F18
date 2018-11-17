@@ -27,7 +27,6 @@ Pin mapping for wemos D1 mini (GPIO numbers) (https://github.com/esp8266/Arduino
 ********************************************************************************
 *******************************************************************************/
 
-
 #include <string>
 #include <list>
 #include <ArduinoJson.h>
@@ -39,8 +38,9 @@ Pin mapping for wemos D1 mini (GPIO numbers) (https://github.com/esp8266/Arduino
 #include "httpservercontrol.h"
 #include "eepromcontrol.h"
 #include "configstruct.h"
+#include "pairing.h"
 
-ButtonControl button1(15); //D8
+ButtonControl button1(15);       //D8
 ButtonControl pairingButton(12); //D6
 
 // Scheduler userScheduler; // to control your personal task
@@ -49,7 +49,6 @@ ButtonControl pairingButton(12); //D6
 // void sendMessage(); // Prototype so PlatformIO doesn't complain
 
 // Task taskSendMessage(TASK_SECOND * 1, TASK_FOREVER, &sendMessage);
-
 
 int Common::HTTP_REST_PORT;
 int Common::WIFI_RETRY_DELAY;
@@ -69,11 +68,11 @@ byte Common::ledPattern;
 uint32_t Common::myNodeID;
 int Common::noNodes;
 
-
+byte Common::currentMode;
 // ESP8266WebServer HttpServerControl::http_rest_server;
 
-
-void setGlobalVariables(){
+void setGlobalVariables()
+{
     Common::HTTP_REST_PORT = 80;
     Common::WIFI_RETRY_DELAY = 500;
 
@@ -95,48 +94,88 @@ void setGlobalVariables(){
     // Common::configFileName = "config.json";
 }
 
-
-void SwitchLightMode(){
+void SwitchLightMode()
+{
     Serial.println("Button pressed in callback");
     LedControl::changeLEDPattern();
     MeshControl::sendMeshMessage("switch light mode");
 }
 
-
-void setup()
+void MeshMessageHandle(uint32_t from, String &msg)
 {
-    setGlobalVariables();
-    LedControl::setupLed();
-    delay(1000);
-    Serial.begin(115200);
 
-
-    EepromControl eepromControl;
-
-    ConfigStruct configData;
-    String configDataString = "";
-    configDataString = eepromControl.ReadFile("config.json");
-
-    Serial.println(configDataString.c_str());
-    Serial.println(configDataString.length());
-
-    if (strlen(configDataString.c_str()) > 0) {
-        configData = eepromControl.JSONStringToConfig(configDataString);
-    } else
+    if (msg == "switch light mode")
     {
-        eepromControl.InitConfigFile();
-        configDataString = eepromControl.ReadFile("config.json");
+        SwitchLightMode();
     }
-    configData = eepromControl.JSONStringToConfig(configDataString);
+
+}
+
+void SendWifiCredRequest()
+{
+    Pairing::SendWifiCredRequest(0, Pairing::hostDeviceId);
+}
+
+void SetupPairingMode(ConfigStruct configData)
+{
+    Pairing::pairingMode = configData.PairingMode;
+
+    MeshControl::setMessageCallback(&Pairing::HandleMessages);
+    MeshControl::setupMesh("MeshPairing", "MeshPairingPassword", 5555);
+
+    // Pairing button functions:
+    // host mode:
+    //      short press: prepare to pair one device (generate and broadcast new pairingId)
+    //      long press: reboot with original settings
+    // client mode:
+    //      short press: pair device
+    //      long press: reboot with original settings
+
+    if (Pairing::pairingMode == 1) {
+        // Client mode
+        Serial.println("Pairing mode activated in Client mode (SSID: MeshPairing, PW: MeshPairingPassword, CommPort: 5555");
+        // button press setup
+        // TODO: button debounce
+        pairingButton.setShortButtonPressMethod(&SendWifiCredRequest);
+        pairingButton.setLongButtonPressMethod(&Pairing::ExitPairing);
+
+    } else if (Pairing::pairingMode == 2)
+    {
+        // Host Mode
+        Serial.println("Pairing mode activated in Host mode (SSID: MeshPairing, PW: MeshPairingPassword, CommPort: 5555");
+        // button press setup
+        // TODO: button debounce
+        pairingButton.setShortButtonPressMethod(&Pairing::BroadcastPairingId);
+        pairingButton.setLongButtonPressMethod(&Pairing::ExitPairing);
+    }
+}
 
 
-    Serial.println(configData.isPairingMode);
-    Serial.println(configData.SSID);
-    Serial.println(configData.Password);
-    Serial.println(configData.CommPort);
+void RebootIntoPairing_Client()
+{
+    EepromControl eepromControl;
+    ConfigStruct config = eepromControl.ReadConfigFile();
 
+    config.PairingMode = 1;
 
+    eepromControl.SaveConfigFile(config);
+    Common::RebootDevice();
+}
 
+void RebootIntoPairing_Host()
+{
+    EepromControl eepromControl;
+    ConfigStruct config = eepromControl.ReadConfigFile();
+
+    config.PairingMode = 2;
+
+    eepromControl.SaveConfigFile(config);
+    Common::RebootDevice();
+}
+
+void SetupMeshMode(ConfigStruct configData)
+{
+    MeshControl::setMessageCallback(&MeshMessageHandle);
     MeshControl::setupMesh(configData.SSID, configData.Password, configData.CommPort);
     // MeshControl::setupMesh("zfrWemosMesh", "potatochips3214");
 
@@ -148,15 +187,14 @@ void setup()
 
     // void (*lightmodeSwitchPtr)() = &SwitchLightMode;
     button1.setShortButtonPressMethod(&SwitchLightMode);
+
+    pairingButton.setShortButtonPressMethod(&RebootIntoPairing_Client);
+    pairingButton.setLongButtonPressMethod(&RebootIntoPairing_Host);
 }
 
-void loop()
+void LoopMeshMode()
 {
-    // userScheduler.execute(); // it will run mesh scheduler as well
-    MeshControl::updateMesh();
     HttpServerControl::http_rest_server.handleClient();
-
-    button1.handdleButtonPress();
 
     if (millis() - Common::timer > 1000 / Common::frameRate)
     {
@@ -166,6 +204,45 @@ void loop()
     }
 }
 
+void LoopPairingMode()
+{
 
+}
 
+void setup()
+{
+    setGlobalVariables();
+    LedControl::setupLed();
+    delay(1000);
+    Serial.begin(115200);
 
+    EepromControl eepromControl;
+    ConfigStruct configData = eepromControl.ReadConfigFile();
+
+    Common::currentMode = configData.PairingMode;
+    Serial.println(Common::currentMode);
+
+    if (Common::currentMode == 0)
+    {
+        SetupMeshMode(configData);
+    }
+    else
+    {
+        SetupPairingMode(configData);
+    }
+}
+
+void loop()
+{
+    MeshControl::updateMesh();
+    button1.handdleButtonPress();
+    pairingButton.handdleButtonPress();
+
+    if (Common::currentMode == 0) {
+        LoopMeshMode();
+    } else
+    {
+        LoopPairingMode();
+    }
+
+}

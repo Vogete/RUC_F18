@@ -17,12 +17,15 @@ public:
     // void loadStruct(void *data_dest, size_t size, int address = 0);
 
     void FormatSPIFFS();
+
     String ReadFile(String fileName);
     void WriteFile(String fileName, String data);
-    String ConfigToJSONString(ConfigStruct config);
-    ConfigStruct JSONStringToConfig(String jsonString);
+    ConfigStruct ReadConfigFile();
+    void SaveConfigFile(ConfigStruct config);
     void InitConfigFile();
 
+    String ConfigToJSONString(ConfigStruct config);
+    ConfigStruct JSONStringToConfig(String jsonString);
 };
 
 #endif // !_EEPROMCONTROL_H_

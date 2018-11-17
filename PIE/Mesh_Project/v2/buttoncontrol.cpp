@@ -35,6 +35,7 @@ void ButtonControl::setupButton(uint8_t pinNumber)
 
 void ButtonControl::handdleButtonPress()
 {
+    // TODO: button debounce
     Common::buttonState = digitalRead(buttonPin);
 
 	if (Common::buttonState == HIGH) {

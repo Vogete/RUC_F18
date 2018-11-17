@@ -2,8 +2,6 @@
 #include "meshcontrol.h"
 #include "ledcontrol.h"
 
-
-
 // #define MESH_PREFIX "zfrWemosMesh"
 // #define MESH_PASSWORD "potatochips3214"
 // #define MESH_PORT 5555
@@ -12,33 +10,32 @@
 #define STATION_SSID "Kukucs Guest"
 #define STATION_PASSWORD "kukucs357"
 
-
 easyMesh MeshControl::mesh;
 
 // list of all the nodes in the mesh (excluding the current one)
 std::list<uint32_t> MeshControl::meshNodes;
 
+void (*MeshControl::messageReceiveCallback)(uint32_t from, String &msg);
 
-
-
-MeshControl::MeshControl(){
+MeshControl::MeshControl()
+{
 }
 
-
+void MeshControl::setMessageCallback(void (*callbackFunc)(uint32_t from, String &msg))
+{
+    messageReceiveCallback = *callbackFunc;
+}
 
 void MeshControl::updateMesh()
 {
     mesh.update();
 }
 
-
 void MeshControl::receivedCallback(uint32_t from, String &msg)
 {
-    Serial.printf("message received from %u msg=%s\n", from, msg.c_str());
-    if (msg == "switch light mode")
-    {
-        LedControl::changeLEDPattern();
-    }
+    Serial.printf("Message received from %u msg= %s\n", from, msg.c_str());
+
+    (*messageReceiveCallback)(from, msg);
 }
 
 void MeshControl::newConnectionCallback(bool adopt)
@@ -63,9 +60,7 @@ void MeshControl::sendMeshMessage(String message, uint32_t destination)
         mesh.sendSingle(destination, message);
         Serial.printf("mesasge sent to %u : %s", destination, message.c_str());
     }
-
 }
-
 
 String MeshControl::getNodesInMesh()
 {
@@ -78,8 +73,8 @@ void MeshControl::setupMesh(String ssid, String password, uint16_t port)
     mesh.setDebugMsgTypes(ERROR | STARTUP); // set before init() so that you can see startup messages
 
     mesh.init(ssid, password, port);
-    mesh.setReceiveCallback( &receivedCallback );
-    mesh.setNewConnectionCallback( &newConnectionCallback );
+    mesh.setReceiveCallback(&receivedCallback);
+    mesh.setNewConnectionCallback(&newConnectionCallback);
 
     // mesh.onChangedConnections(&changedConnectionCallback);
     // mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
@@ -101,5 +96,4 @@ void MeshControl::setupMesh(String ssid, String password, uint16_t port)
 
     // userScheduler.addTask(taskSendMessage);
     // taskSendMessage.enable();
-
 }
