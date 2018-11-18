@@ -39,6 +39,7 @@ void Pairing::SendWifiCred(ConfigStruct config, uint32_t destination)
 
 void Pairing::SendWifiCredRequest(int _pairingId, uint32_t _destination)
 {
+    Serial.println("Sending Wifi Credential request");
     // Sends a request to get the wifi credentials
 
     StaticJsonBuffer<300> jsonBuffer;
@@ -74,6 +75,8 @@ void Pairing::BroadcastPairingId()
     // Broadcast pairing ID for one time usage
     pairingId = GeneratePairingId();
 
+    Serial.println("Broadcasting pairing ID");
+
     StaticJsonBuffer<300> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();
 
@@ -90,6 +93,7 @@ void Pairing::BroadcastPairingId()
 
 void Pairing::HandleMessages(uint32_t from, String &msg)
 {
+    Serial.printf("Incoming message: %s", msg.c_str());
     StaticJsonBuffer<300> jsonBuffer;
     JsonObject& root = jsonBuffer.parseObject(msg);
 
@@ -178,6 +182,7 @@ int Pairing::GeneratePairingId()
 
 void Pairing::ExitPairing()
 {
+    Serial.println("Exit pairing and rebooting");
     EepromControl eepromControl;
     ConfigStruct config = eepromControl.ReadConfigFile();
 

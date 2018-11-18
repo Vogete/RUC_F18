@@ -46,6 +46,7 @@ void ButtonControl::handdleButtonPress()
 
 		if ( (millis() - buttonTimer > longPressTime) && (longPressActive == false) ) {
 			longPressActive = true;
+            Serial.println("Long button press detected");
             longButtonPress();
 		}
 	} else {
@@ -53,6 +54,7 @@ void ButtonControl::handdleButtonPress()
 			if (longPressActive == true) {
 				longPressActive = false;
 			} else {
+                Serial.println("Short button press detected");
                 shortButtonPress();
 			}
 			buttonActive = false;
