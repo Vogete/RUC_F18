@@ -30,7 +30,7 @@ ButtonControl::ButtonControl(uint8_t pinNumber){
 
 void ButtonControl::setupButton(uint8_t pinNumber)
 {
-    pinMode(pinNumber, INPUT);
+    pinMode(pinNumber, INPUT_PULLUP);
 }
 
 void ButtonControl::handdleButtonPress()
@@ -38,7 +38,7 @@ void ButtonControl::handdleButtonPress()
     // TODO: button debounce
     Common::buttonState = digitalRead(buttonPin);
 
-	if (Common::buttonState == HIGH) {
+	if (Common::buttonState == LOW) {
         if (buttonActive == false) {
 			buttonActive = true;
 			buttonTimer = millis();
