@@ -140,8 +140,8 @@ void EepromControl::InitConfigFile()
 {
   ConfigStruct initData = {
       0,
-      "mesh",
-      "mesh",
+      "WemosMesh",
+      "WemosMeshPassword",
       5555
   };
 

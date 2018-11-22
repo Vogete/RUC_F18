@@ -34,7 +34,9 @@ void Pairing::SendWifiCred(ConfigStruct config, uint32_t destination)
     String jsonString;
     root.printTo(jsonString);
 
-    MeshControl::sendMeshMessage(jsonString, destination);
+    // TODO: needs to be changed back to send it to the right node
+    MeshControl::sendMeshMessage(jsonString);
+    // MeshControl::sendMeshMessage(jsonString, destination);
 }
 
 void Pairing::SendWifiCredRequest(int _pairingId, uint32_t _destination)
@@ -158,12 +160,12 @@ void Pairing::HostMessageHandling(uint32_t from, String stringJsonData)
             break;
         }
         case 2: {
-            // NEED: pairing ID for a bit better security
+            // NEED: pairing ID for a bit better security?
             EepromControl eepromControl;
             ConfigStruct config;
             config = eepromControl.ReadConfigFile();
             SendWifiCred(config, from);
-            ExitPairing();
+            // ExitPairing(); // if this is added, then the message won't be sent properly
             break;
         }
         default: {

@@ -217,6 +217,9 @@ void setup()
     Serial.begin(115200);
 
     EepromControl eepromControl;
+
+    // eepromControl.InitConfigFile();
+
     ConfigStruct configData = eepromControl.ReadConfigFile();
 
     Common::currentMode = configData.PairingMode;
