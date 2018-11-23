@@ -1,8 +1,9 @@
-#ifndef _COMMON_POTATO_H_
-#define _COMMON_POTATO_H_
+#ifndef _COMMON_H_
+#define _COMMON_H_
 
 #define byte uint8_t
 
+#include <WString.h>
 #include <string>
 #include <list>
 
@@ -11,6 +12,8 @@ class Common
 {
 public:
     Common();
+
+    static void RebootDevice();
     static int HTTP_REST_PORT;
     static int WIFI_RETRY_DELAY;
 
@@ -29,7 +32,9 @@ public:
     static uint32_t myNodeID;
     static int noNodes;
 
-    void sendMessage(std::string message, uint32_t destination = 0);
+    static String configFileName;
+    static byte currentMode;
+
 };
 
 // extern std::string MESH_PREFIX = "zfrWemosMesh";

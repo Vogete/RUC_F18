@@ -1,48 +1,54 @@
-#include "common.h"
+/*******************************************************************************
+********************************************************************************
+IMPORTANT NOTES:
+https://github.com/Coopdis/easyMesh/issues/16
+ONLY version 2.3.0 of the esp8266 board package is working!
 
+Most stable easymesh library: https://github.com/sfranzyshen/easyMesh
+PainlessMesh is cool and all, but has time sync issues, and not stable
+
+Other useful stuff:
+https://github.com/BlackEdder/easyMesheD
+
+
+
+Pin mapping for wemos D1 mini (GPIO numbers) (https://github.com/esp8266/Arduino/blob/master/variants/d1_mini/pins_arduino.h#L49-L61):
+    D0 = 16
+    D1 = 5
+    D2 = 4
+    D3 = 0
+    D4 = 2 //LED_BUILTIN
+    D5 = 14
+    D6 = 12
+    D7 = 13
+    D8 = 15
+    RX = 3
+    TX = 1
+********************************************************************************
+*******************************************************************************/
+
+#include <string>
 #include <list>
-#include <painlessMesh.h>
-
-// REST Server
-#include <stdio.h>
-#include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
 
+#include "common.h"
 #include "buttoncontrol.h"
 #include "ledcontrol.h"
+#include "meshcontrol.h"
+#include "httpservercontrol.h"
+#include "eepromcontrol.h"
+#include "configstruct.h"
+#include "pairing.h"
 
-// -------------LED ------------
-//stop LED flickering when wifi is on: https://github.com/FastLED/FastLED/issues/306
-// #define FASTLED_ALLOW_INTERRUPTS 0
-#define FASTLED_INTERRUPT_RETRY_COUNT 0
+ButtonControl button1(15);       //D8
+ButtonControl pairingButton(12); //D6
 
-painlessMesh mesh;
-Scheduler userScheduler; // to control your personal task
-ESP8266WebServer http_rest_server(Common::HTTP_REST_PORT);
-
-Common common;
-LedControl ledControl;
-ButtonControl buttonControl;
+// Scheduler userScheduler; // to control your personal task
 
 // User stub
 // void sendMessage(); // Prototype so PlatformIO doesn't complain
 
 // Task taskSendMessage(TASK_SECOND * 1, TASK_FOREVER, &sendMessage);
-
-#define MESH_PREFIX "zfrWemosMesh"
-#define MESH_PASSWORD "potatochips3214"
-#define MESH_PORT 5555
-#define MESH_CHANNEL 1
-#define HOSTNAME "WEMOS-MESH"
-#define STATION_SSID "Kukucs Guest"
-#define STATION_PASSWORD "kukucs357"
-
-
-// list of all the nodes in the mesh (excluding the current one)
-std::list<uint32_t> meshNodes;
-// extern uint32_t myNodeID;
-
-
 
 int Common::HTTP_REST_PORT;
 int Common::WIFI_RETRY_DELAY;
@@ -62,11 +68,15 @@ byte Common::ledPattern;
 uint32_t Common::myNodeID;
 int Common::noNodes;
 
-void setGlobalVariables(){
+byte Common::currentMode;
+// ESP8266WebServer HttpServerControl::http_rest_server;
+
+void setGlobalVariables()
+{
     Common::HTTP_REST_PORT = 80;
     Common::WIFI_RETRY_DELAY = 500;
 
-    Common::NUM_LEDS = 8;
+    Common::NUM_LEDS = 9;
 
     Common::buttonState = 0;
     Common::lastButtonState = 0;
@@ -79,140 +89,163 @@ void setGlobalVariables(){
     Common::ledPattern = 1;
 
     Common::myNodeID = 0;
-    Common::noNodes = 0;
+    Common::noNodes = 1;
+
+    // Common::configFileName = "config.json";
 }
 
-
-
-// Needed for painless library
-void receivedCallback(uint32_t from, String &msg)
+void SwitchLightMode()
 {
-    Serial.printf("startHere: Received from %u msg=%s\n", from, msg.c_str());
+    Serial.println("Button pressed in callback");
+    LedControl::changeLEDPattern();
+    MeshControl::sendMeshMessage("switch light mode");
+}
+
+void MeshMessageHandle(uint32_t from, String &msg)
+{
+
     if (msg == "switch light mode")
     {
-        ledControl.changeLEDPattern();
+        SwitchLightMode();
     }
+
 }
 
-void newConnectionCallback(uint32_t nodeId)
+void SendWifiCredRequest()
 {
-    Serial.printf("--> startHere: New Connection, nodeId = %u\n", nodeId);
+    Pairing::SendWifiCredRequest(0, Pairing::hostDeviceId);
 }
 
-void changedConnectionCallback()
+void SetupPairingMode(ConfigStruct configData)
 {
-    Serial.printf("Changed connections %s\n", mesh.subConnectionJson().c_str());
+    Pairing::pairingMode = configData.PairingMode;
 
+    MeshControl::setMessageCallback(&Pairing::HandleMessages);
+    MeshControl::setupMesh("MeshPairing", "MeshPairingPassword", 5555);
 
-    meshNodes = mesh.getNodeList();
-    int nodeNumber = meshNodes.size();
-    Common::noNodes = meshNodes.size() + 1;
+    // Pairing button functions:
+    // host mode:
+    //      short press: prepare to pair one device (generate and broadcast new pairingId)
+    //      long press: reboot with original settings
+    // client mode:
+    //      short press: pair device
+    //      long press: reboot with original settings
 
-    String nodesOutput = "";
+    if (Pairing::pairingMode == 1) {
+        // Client mode
+        Serial.println("Pairing mode activated in Client mode (SSID: MeshPairing, PW: MeshPairingPassword, CommPort: 5555");
+        // button press setup
+        // TODO: button debounce
+        pairingButton.setShortButtonPressMethod(&SendWifiCredRequest);
+        pairingButton.setLongButtonPressMethod(&Pairing::ExitPairing);
 
-    Serial.printf("%d mesh in the network: ", Common::noNodes);
-    Serial.printf("(My ID) %u | ", Common::myNodeID);
-    for (std::list<uint32_t>::iterator node = meshNodes.begin(); node != meshNodes.end(); ++node)
+    } else if (Pairing::pairingMode == 2)
     {
-        Serial.printf("%u | ", *node);
+        // Host Mode
+        Serial.println("Pairing mode activated in Host mode (SSID: MeshPairing, PW: MeshPairingPassword, CommPort: 5555");
+        // button press setup
+        // TODO: button debounce
+        pairingButton.setShortButtonPressMethod(&Pairing::BroadcastPairingId);
+        pairingButton.setLongButtonPressMethod(&Pairing::ExitPairing);
     }
-    Serial.printf("\n");
-
-    // LED update could be put here :)
 }
 
-void nodeTimeAdjustedCallback(int32_t offset)
+
+void RebootIntoPairing_Client()
 {
-    Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(), offset);
+    EepromControl eepromControl;
+    ConfigStruct config = eepromControl.ReadConfigFile();
+
+    config.PairingMode = 1;
+
+    eepromControl.SaveConfigFile(config);
+    Common::RebootDevice();
 }
 
-void config_rest_server_routing()
+void RebootIntoPairing_Host()
 {
-    http_rest_server.on("/", HTTP_GET, []() {
-        http_rest_server.send(200, "text/html",
-                              "Welcome to the ESP8266 REST Web Server");
-    });
-    // http_rest_server.on("/mesh", HTTP_GET, getNodesInMesh);
-    // http_rest_server.on("/changeLEDPattern", HTTP_GET, apiChangeLedPattern);
+    EepromControl eepromControl;
+    ConfigStruct config = eepromControl.ReadConfigFile();
 
-    // http_rest_server.on("/leds", HTTP_POST, post_put_leds);
-    // http_rest_server.on("/leds", HTTP_PUT, post_put_leds);
+    config.PairingMode = 2;
+
+    eepromControl.SaveConfigFile(config);
+    Common::RebootDevice();
+}
+
+void SetupMeshMode(ConfigStruct configData)
+{
+    MeshControl::setMessageCallback(&MeshMessageHandle);
+    MeshControl::setupMesh(configData.SSID, configData.Password, configData.CommPort);
+    // MeshControl::setupMesh("zfrWemosMesh", "potatochips3214");
+
+    // HttpServerControl::http_rest_server(Common::HTTP_REST_PORT);
+    // rest api
+    HttpServerControl::config_rest_server_routing();
+    HttpServerControl::http_rest_server.begin();
+    Serial.println("HTTP REST Server Started");
+
+    // void (*lightmodeSwitchPtr)() = &SwitchLightMode;
+    button1.setShortButtonPressMethod(&SwitchLightMode);
+
+    pairingButton.setShortButtonPressMethod(&RebootIntoPairing_Client);
+    pairingButton.setLongButtonPressMethod(&RebootIntoPairing_Host);
+}
+
+void LoopMeshMode()
+{
+    HttpServerControl::http_rest_server.handleClient();
+
+    if (millis() - Common::timer > 1000 / Common::frameRate)
+    {
+        Common::timer = millis();
+        LedControl::showLEDPattern();
+        LedControl::loopLed();
+    }
+}
+
+void LoopPairingMode()
+{
+
 }
 
 void setup()
 {
     setGlobalVariables();
-    buttonControl.setupButtons();
-
-    ledControl.setupLed();
+    LedControl::setupLed();
     delay(1000);
-
     Serial.begin(115200);
 
+    EepromControl eepromControl;
 
-    //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
-    mesh.setDebugMsgTypes(ERROR | STARTUP); // set before init() so that you can see startup messages
+    // eepromControl.InitConfigFile();
 
-    mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT, WIFI_AP_STA, MESH_CHANNEL);
-    mesh.onReceive(&receivedCallback);
-    mesh.onNewConnection(&newConnectionCallback);
-    mesh.onChangedConnections(&changedConnectionCallback);
-    mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
+    ConfigStruct configData = eepromControl.ReadConfigFile();
 
-    Common::myNodeID = mesh.getNodeId();
-    Serial.printf("MyNodeID: %u\n", Common::myNodeID);
+    Common::currentMode = configData.PairingMode;
+    Serial.println(Common::currentMode);
 
-    if (Common::myNodeID == 3943449884)
+    if (Common::currentMode == 0)
     {
-        mesh.setRoot(); //maybe helps with stabilization?
-        mesh.stationManual(STATION_SSID, STATION_PASSWORD);
-        mesh.setHostname(HOSTNAME);
-        Serial.printf("Connected to WiFi network %s\n", STATION_SSID);
+        SetupMeshMode(configData);
     }
     else
     {
-        mesh.setContainsRoot(); //maybe helps with stabilization?
+        SetupPairingMode(configData);
     }
-
-
-    // userScheduler.addTask(taskSendMessage);
-    // taskSendMessage.enable();
-
-
-    // rest api
-    config_rest_server_routing();
-    http_rest_server.begin();
-    Serial.println("HTTP REST Server Started");
 }
 
 void loop()
 {
-    userScheduler.execute(); // it will run mesh scheduler as well
-    mesh.update();
-    http_rest_server.handleClient();
+    MeshControl::updateMesh();
+    button1.handdleButtonPress();
+    pairingButton.handdleButtonPress();
 
-    buttonControl.handdleButtonPress();
-
-    if (millis() - Common::timer > 1000 / Common::frameRate)
+    if (Common::currentMode == 0) {
+        LoopMeshMode();
+    } else
     {
-        Common::timer = millis();
-        ledControl.showLEDPattern();
-        ledControl.loopLed();
+        LoopPairingMode();
     }
-}
 
-// REST Server stuff
-
-void getNodesInMesh()
-{
-    http_rest_server.send(200, "application/json", mesh.subConnectionJson().c_str());
-}
-
-
-
-void apiChangeLedPattern()
-{
-    ledControl.changeLEDPattern();
-    common.sendMessage("switch light mode");
-    http_rest_server.send(200, "text/html", "Changed LED Patter! :)");
 }
