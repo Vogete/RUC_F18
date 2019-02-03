@@ -60,6 +60,14 @@ RUC 2nd Semester (2018 Fall) information, useful links, teaching materials, exce
   - [IT security 3](/BUITA/2018-10-11/buita-its-3-moodle.pdf)
 - [October 23](/BUITA/2018-10-23/)
   - [BUITA11.pdf](/BUITA/2018-10-23/BUITA11.pdf)
+- [October 30](/BUITA/2018-10-30/)
+  - [BUITA12-EIT2.pdf](/BUITA/2018-10-30/BUITA12-EIT2.pdf)
+- [November 06](/BUITA/2018-11-06/)
+  - [BUITA13-SDD3.pdf](/BUITA/2018-11-06/BUITA13-SDD3.pdf)
+  - [IT-Architect-fra-IBM-2018-11-06.pdf](/BUITA/2018-11-06/IT-Architect-fra-IBM-2018-11-06.pdf)
+- [November 13](/BUITA/2018-11-13/)
+  - [BUITA9-ICM1.pdf](/BUITA/2018-11-13/BUITA9-ICM1.pdf)
+  - [BUITA14-ICM3.pdf](/BUITA/2018-11-13/BUITA14-ICM3.pdf)
 
 ### BUITA Project Portfolio
 
